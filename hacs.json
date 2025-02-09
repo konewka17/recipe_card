@@ -8,6 +8,6 @@
   "domain": "recipe-card",
   "issues": "https://github.com/konewka17/recipe_card/issues",
   "version": "1.0.3",
-  "filename": "card.js",
-  "content_in_root": true
+  "filename": "index.js",
+  "content_in_root": false
 }

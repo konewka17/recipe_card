@@ -1,4 +1,5 @@
 import * as yaml from "https://unpkg.com/js-yaml?module"
+import css from "./card.css";
 
 export class RecipeCard extends HTMLElement {
 
@@ -60,50 +61,7 @@ export class RecipeCard extends HTMLElement {
 
     doStyle() {
         this._elements.style = document.createElement("style");
-        this._elements.style.textContent = `
-            .selectdiv {
-                margin: 10px
-            }
-            
-            .selectdiv > select {
-                width: 100%;
-                padding: 5px;
-                border-radius: 10px;
-            }
-            
-            .content {
-                padding: 16px;
-                font-family: Calibri
-            }
-            
-            .recipe-title {
-                font-size: 1.5em;
-                font-weight: bold;
-                margin-bottom: 10px;
-                border-bottom: black 1px solid;
-                padding-bottom: 5px;
-                font-family: Cambria;
-            }
-            
-            .recipe-content {
-                margin-left: 20px;
-            }
-            
-            .ingredient-list {
-                padding-inline-start: 20px;
-                margin: 0;
-            }
-            
-            .ingredient {
-            }
-            
-            .amount {
-            }
-            
-            .instruction-list {
-                padding-inline-start: 20px;
-                margin: 0;
-            }`;
+        this._elements.style.textContent = css;
     }
 
     doAttach() {
@@ -202,5 +160,3 @@ export class RecipeCard extends HTMLElement {
         }
     }
 }
-
-customElements.define("recipe-card", RecipeCard);

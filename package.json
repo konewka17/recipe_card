@@ -1,17 +1,12 @@
 {
-  "source": "src/card.js",
-  "main": "src/card.js",
+  "type": "module",
+  "module": "dist/index.js",
   "scripts": {
-    "watch": "parcel watch",
-    "build": "parcel build"
-  },
-  "targets": {
-    "module": {
-      "includeNodeModules": true
-    }
+    "build": "rollup -c",
+    "dev": "rollup -c -w"
   },
   "devDependencies": {
-    "@parcel/transformer-inline-string": "^2.13.3",
-    "parcel": "^2.13.3"
+    "rollup": "^4.34.6",
+    "rollup-plugin-import-css": "^3.5.8"
   }
 }
