@@ -1,6 +1,6 @@
 {
-  "source": "src/card.js",
-  "main": "dist/card.js",
+  "source": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
     "watch": "parcel watch",
     "build": "parcel build"
