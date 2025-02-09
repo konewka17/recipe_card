@@ -11,17 +11,16 @@ class RecipeCard extends HTMLElement {
     constructor() {
         super();
         this.yamlEntryToLi = this.yamlEntryToLi.bind(this);
-        this.doCard();
-        this.doStyle();
-        this.doAttach();
-        this.doQueryElements();
     }
 
     setConfig(config) {
         this._config = config;
+        this.doCard();
+        this.doStyle();
+        this.doAttach();
+        this.doQueryElements();
         this.doCheckConfig();
         this.doFetchRecipes();
-        this.doFillCard();
     }
 
     set hass(hass) {
@@ -43,6 +42,7 @@ class RecipeCard extends HTMLElement {
             this._parsedRecipes = window.jsyaml.load(yamlText);
             // this._recipeIndex = Math.floor(Math.random() * this._parsedRecipes.length);
             this._recipeIndex = 121;
+            this.doFillCard();
         } catch (error) {
             throw new Error(`Error fetching or parsing the recipe file: ${error}`);
         }
@@ -108,39 +108,34 @@ class RecipeCard extends HTMLElement {
         this._elements.content = card.querySelector(".content");
     }
 
-    doFillCard() {
-        this.doFillSelect();
-        this.doFillContent();
-    }
 
     doFillSelect() {
-        let groupedRecipes = this._parsedRecipes.reduce((grouped, recipe) => {
+        let groupedRecipes = this._parsedRecipes.reduce((grouped, recipe, index) => {
             const category = recipe.category || "Onbekend";
             if (!grouped[category]) {
                 grouped[category] = [];
             }
-            grouped[category].push(recipe);
+            grouped[category].push({...recipe, index});
             return grouped;
         }, {});
 
         const categoryOptions = Object.keys(groupedRecipes).map(category => {
-            // TODO fill with id
+            // TODO let value be the index (key) in this._parsedRecipes instead of name
             const options = groupedRecipes[category].map(recipe => {
-                return `<option value="${recipe.name}">${recipe.name}</option>`;
+                return `<option value="${recipe.index}">${recipe.name}</option>`;
             }).join("");
             return `<optgroup label="${category}">${options}</optgroup>`;
         }).join("");
 
-        this.selectdiv.innerHTML = `
+        this._elements.selectdiv.innerHTML = `
             <select id="recipe-selector">
                 <option value="">Select a recipe...</option>
                 ${categoryOptions}
             </select>
         `;
 
-        this.selectdiv.querySelector("#recipe-selector").addEventListener("change", (event) => {
-            const selectedRecipeName = event.target.value;
-            this._recipeIndex = this._parsedRecipes.findIndex(recipe => recipe.name === selectedRecipeName);
+        this._elements.selectdiv.querySelector("#recipe-selector").addEventListener("change", (event) => {
+            this._recipeIndex = event.target.value
             if (this._recipeIndex !== -1) {
                 this.doFillContent();
             }
@@ -151,11 +146,11 @@ class RecipeCard extends HTMLElement {
     doFillContent() {
         this.recipe = this._parsedRecipes[this._recipeIndex];
         if (!this.recipe) {
-            this.content.innerHTML = "Loading recipe...";
+            this._elements.content.innerHTML = "Loading recipe...";
             return;
         }
 
-        this.content.innerHTML = `
+        this._elements.content.innerHTML = `
             <div class="recipe-title">${this.recipe.name}</div>
             <div class="recipe-content">
                 <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
@@ -169,6 +164,11 @@ class RecipeCard extends HTMLElement {
                 </ol>
             </div>
         `;
+    }
+
+    doFillCard() {
+        this.doFillSelect();
+        this.doFillContent();
     }
 
     // helpers
