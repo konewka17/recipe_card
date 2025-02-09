@@ -1,3 +1,11 @@
+
+function $parcel$interopDefault(a) {
+  return a && a.__esModule ? a.default : a;
+}
+var $f75af1db21f1c9c2$exports = {};
+$f75af1db21f1c9c2$exports = ".selectdiv {\n  margin: 10px;\n}\n\n.selectdiv > select {\n  border-radius: 10px;\n  width: 100%;\n  padding: 5px;\n}\n\n.content {\n  padding: 16px;\n  font-family: Calibri;\n}\n\n.recipe-title {\n  border-bottom: 1px solid #000;\n  margin-bottom: 10px;\n  padding-bottom: 5px;\n  font-family: Cambria;\n  font-size: 1.5em;\n  font-weight: bold;\n}\n\n.recipe-content {\n  margin-left: 20px;\n}\n\n.ingredient-list, .instruction-list {\n  margin: 0;\n  padding-inline-start: 20px;\n}\n";
+
+
 class $bf513b85805031e6$export$6d5cb399979bb8ba extends HTMLElement {
     // private properties
     _config;
@@ -47,43 +55,7 @@ class $bf513b85805031e6$export$6d5cb399979bb8ba extends HTMLElement {
     }
     doStyle() {
         this._elements.style = document.createElement("style");
-        this._elements.style.textContent = `
-            .selectdiv {
-                margin: 10px
-            }
-            .selectdiv > select {
-                width: 100%;
-                padding: 5px;
-                border-radius: 10px;
-            }
-            .content {
-                padding: 16px;
-                font-family: Calibri
-            }
-            .recipe-title {
-              font-size: 1.5em;
-              font-weight: bold;
-              margin-bottom: 10px;   
-              border-bottom: black 1px solid;
-              padding-bottom: 5px;
-              font-family: Cambria;
-            }
-            .recipe-content{
-              margin-left:20px;
-            }
-            .ingredient-list { 
-              padding-inline-start: 20px;
-              margin: 0;
-            }
-            .ingredient {
-            }
-            .amount {
-            }
-            .instruction-list {
-              padding-inline-start: 20px;
-              margin: 0;
-            }
-        `;
+        this._elements.style.textContent = (0, (/*@__PURE__*/$parcel$interopDefault($f75af1db21f1c9c2$exports)));
     }
     doAttach() {
         this.attachShadow({
