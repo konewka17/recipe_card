@@ -7,7 +7,7 @@
   "documentation": "https://github.com/konewka17/recipe_card",
   "domain": "recipe-card",
   "issues": "https://github.com/konewka17/recipe_card/issues",
-  "version": "1.0.2",
-  "filename": "index.js",
-  "content_in_root": false
+  "version": "1.0.3",
+  "filename": "card.js",
+  "content_in_root": true
 }
