@@ -26,8 +26,9 @@ class RecipeCard extends HTMLElement {
 
     // jobs
     doCheckConfig() {
-        if (!this._config.entity) {
-            throw new Error('Please define an entity!');
+        console.log(this._hass);
+        if (!this._config.url) {
+            throw new Error('Please define a url in config!');
         }
     }
 
