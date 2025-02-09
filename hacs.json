@@ -1,0 +1,13 @@
+{
+  "name": "Recipe Card",
+  "description": "A custom recipe card for Home Assistant",
+  "codeowners": ["@konewka17"],
+  "config_flow": false,
+  "dependencies": [],
+  "documentation": "https://github.com/konewka17/recipe_card",
+  "domain": "recipe-card",
+  "issues": "https://github.com/konewka17/recipe_card/issues",
+  "version": "1.0.0",
+  "filename": "card.js",
+  "content_in_root": false
+}
