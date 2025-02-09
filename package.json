@@ -7,6 +7,10 @@
   },
   "devDependencies": {
     "rollup": "^4.34.6",
-    "rollup-plugin-import-css": "^3.5.8"
+    "rollup-plugin-import-css": "^3.5.8",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
   }
 }

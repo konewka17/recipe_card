@@ -1,4 +1,5 @@
-import * as yaml from "https://unpkg.com/js-yaml?module"
+// import * as yaml from "https://unpkg.com/js-yaml?module"
+import {load} from "js-yaml"
 import css from "./card.css";
 
 export class RecipeCard extends HTMLElement {
@@ -42,7 +43,7 @@ export class RecipeCard extends HTMLElement {
             const response = await fetch(this._config.url);
             const yamlText = await response.text();
 
-            this._parsedRecipes = yaml.load(yamlText);
+            this._parsedRecipes = load(yamlText);
             // this._recipeIndex = Math.floor(Math.random() * this._parsedRecipes.length);
             this._recipeIndex = 121;
             this.doFillCard();
