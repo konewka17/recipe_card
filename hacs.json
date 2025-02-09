@@ -9,5 +9,5 @@
   "issues": "https://github.com/konewka17/recipe_card/issues",
   "version": "1.0.0",
   "filename": "card.js",
-  "content_in_root": false
+  "content_in_root": true
 }
