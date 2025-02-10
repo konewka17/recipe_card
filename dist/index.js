@@ -4750,15 +4750,14 @@ class RecipeCard extends HTMLElement {
 
     findBestMatchingRecipe(query) {
         const fuse = new Fuse(this._parsedRecipes, {
-            "keys": ["name", "alternative_name"], "threshold": .6, "includeScore": true, distance: 3, ignoreLocation: true
+            "keys": ["name", "alternative_name"], "threshold": .6, "includeScore": true, distance: 3,
+            ignoreLocation: true
         });
 
         const results = fuse.search(query);
         return results.length ? results[0].refIndex : null;
     }
 }
-
-window.Fuse = Fuse;
 
 customElements.define("recipe-card", RecipeCard);
 //# sourceMappingURL=index.js.map
