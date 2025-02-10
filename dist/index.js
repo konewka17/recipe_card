@@ -4701,7 +4701,7 @@ class RecipeCard extends HTMLElement {
     doFillContent() {
         this.recipe = this._parsedRecipes[this._recipeIndex];
         if (!this.recipe) {
-            this._elements.content.innerHTML = `Geen recept gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
+            this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
             return;
         }
 
