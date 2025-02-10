@@ -4759,8 +4759,9 @@ class RecipeCard extends HTMLElement {
         const results = fuse.search(query);
         return results.length ? this._parsedRecipes.indexOf(results[0].item) : null;
     }
-
 }
+
+window.Fuse = Fuse;
 
 customElements.define("recipe-card", RecipeCard);
 //# sourceMappingURL=index.js.map
