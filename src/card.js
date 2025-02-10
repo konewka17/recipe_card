@@ -1,6 +1,7 @@
 // import * as yaml from "https://unpkg.com/js-yaml?module"
-import {load} from "js-yaml"
+import {load} from "js-yaml";
 import css from "./card.css";
+import Fuse from "fuse.js";
 
 export class RecipeCard extends HTMLElement {
 
@@ -45,7 +46,7 @@ export class RecipeCard extends HTMLElement {
 
             this._parsedRecipes = load(yamlText);
             // this._recipeIndex = Math.floor(Math.random() * this._parsedRecipes.length);
-            this._recipeIndex = 121;
+            this._recipeIndex = this.findBestMatchingRecipe(this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
             this.doFillCard();
         } catch (error) {
             throw new Error(`Error fetching or parsing the recipe file: ${error}`);
@@ -103,7 +104,7 @@ export class RecipeCard extends HTMLElement {
         `;
 
         this._elements.selectdiv.querySelector("#recipe-selector").addEventListener("change", (event) => {
-            this._recipeIndex = event.target.value
+            this._recipeIndex = event.target.value;
             if (this._recipeIndex !== -1) {
                 this.doFillContent();
             }
@@ -114,7 +115,7 @@ export class RecipeCard extends HTMLElement {
     doFillContent() {
         this.recipe = this._parsedRecipes[this._recipeIndex];
         if (!this.recipe) {
-            this._elements.content.innerHTML = "Loading recipe...";
+            this._elements.content.innerHTML = `Geen recept gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
             return;
         }
 
@@ -160,4 +161,17 @@ export class RecipeCard extends HTMLElement {
             return `<li>${yamlEntry}</li>`;
         }
     }
+
+    findBestMatchingRecipe(query) {
+        const fuse = new Fuse(this._parsedRecipes, {
+            keys: ["name"],
+            includeScore: true,
+            threshold: 0.4, // Adjust sensitivity (lower = stricter match)
+            distance: 100, // Controls typo tolerance
+        });
+
+        const results = fuse.search(query);
+        return results.length ? this._parsedRecipes.indexOf(results[0].item) : null;
+    }
+
 }
