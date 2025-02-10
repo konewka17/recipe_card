@@ -173,5 +173,6 @@ export class RecipeCard extends HTMLElement {
         const results = fuse.search(query);
         return results.length ? this._parsedRecipes.indexOf(results[0].item) : null;
     }
-
 }
+
+window.Fuse = Fuse;
