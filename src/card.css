@@ -70,6 +70,12 @@
     position: absolute;
     width: calc(100% - 5px);
     z-index: 10;
+    display: none;
+}
+
+#recipe-search:focus + #recipe-results,
+#recipe-results:not(:empty) {
+    display: block; /* Show when there are results or when focused */
 }
 
 #recipe-results li {

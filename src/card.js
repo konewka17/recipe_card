@@ -94,6 +94,10 @@ export class RecipeCard extends HTMLElement {
             this.updateSearchResults(searchInput.value, resultsList);
         });
 
+        searchInput.addEventListener("focus", () => {
+            this.updateSearchResults(searchInput.value, resultsList); // Show results when focused
+        });
+
         searchInput.addEventListener("keydown", (event) => {
             const items = resultsList.querySelectorAll("li");
 
@@ -115,8 +119,14 @@ export class RecipeCard extends HTMLElement {
                     items[selectedIndex].click();
                 }
             } else if (event.key === "Escape") {
-                resultsList.innerHTML = "";
+                this.clearSearchResults();
                 searchInput.blur();
+            }
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!this._elements.selectdiv.contains(event.target)) {
+                this.clearSearchResults();
             }
         });
     }
@@ -143,8 +153,8 @@ export class RecipeCard extends HTMLElement {
         items.forEach(li => {
             li.addEventListener("click", () => {
                 this._recipeIndex = li.getAttribute("data-index");
-                this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
-                resultsList.innerHTML = ""; // Clear results
+                searchInput.value = this._parsedRecipes[this._recipeIndex].name;
+                this.clearSearchResults();
                 this.doFillContent(); // Load the selected recipe
             });
         });
@@ -154,8 +164,12 @@ export class RecipeCard extends HTMLElement {
         items.forEach(item => item.classList.remove("selected"));
         if (items[index]) {
             items[index].classList.add("selected");
-            items[index].scrollIntoView({ block: "nearest" });
+            items[index].scrollIntoView({block: "nearest"});
         }
+    }
+
+    clearSearchResults() {
+        this._elements.selectdiv.querySelector("#recipe-results").innerHTML = "";
     }
 
     doFillContent() {
