@@ -138,11 +138,26 @@ export class RecipeCard extends HTMLElement {
 
     updateSearchResults(query, resultsList) {
         if (!query.trim()) {
-            resultsList.innerHTML = "";
-            resultsList.style.display = "none";
+            // Show all recipes alphabetically
+            const sortedRecipes = [...this._parsedRecipes].sort((a, b) =>
+                a.name.localeCompare(b.name)
+            );
+
+            resultsList.innerHTML = sortedRecipes
+                .map((recipe, index) => `
+                <li data-index="${index}">
+                    ${recipe.name}
+                    <span class="category-bubble">${recipe.category || "Uncategorized"}</span>
+                </li>
+            `)
+                .join("");
+
+            resultsList.style.display = "block"; // Always show when empty
+            this.addClickEvents(resultsList);
             return;
         }
 
+        // Normal search using Fuse.js
         const fuse = new Fuse(this._parsedRecipes, {
             keys: ["name", "alternative_name"],
             threshold: 0.3,
@@ -151,19 +166,28 @@ export class RecipeCard extends HTMLElement {
 
         const results = fuse.search(query).slice(0, 10); // Limit to top 10 results
         resultsList.innerHTML = results
-            .map((result, index) => `<li data-index="${result.refIndex}" data-pos="${index}">${result.item.name}</li>`)
+            .map(result => `
+            <li data-index="${result.refIndex}">
+                ${result.item.name}
+                <span class="category-bubble">${result.item.category || "Uncategorized"}</span>
+            </li>
+        `)
             .join("");
 
         if (results.length > 0) {
-            resultsList.style.display = "block"; // Show when results exist
+            resultsList.style.display = "block";
         }
 
+        this.addClickEvents(resultsList);
+    }
+
+    addClickEvents(resultsList) {
         const items = resultsList.querySelectorAll("li");
 
         items.forEach(li => {
             li.addEventListener("click", () => {
                 this._recipeIndex = li.getAttribute("data-index");
-                searchInput.value = this._parsedRecipes[this._recipeIndex].name;
+                this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
                 this.clearSearchResults();
                 this.doFillContent(); // Load the selected recipe
             });
