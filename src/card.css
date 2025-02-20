@@ -45,7 +45,7 @@
 
 /* Styles for the search bar */
 #recipe-search {
-    width: 100%;
+    width: calc(100% - 20px);
     padding: 8px;
     border-radius: 10px;
     border: 1px solid #ccc;
@@ -68,8 +68,7 @@
     border: 1px solid #ccc;
     border-radius: 10px;
     position: absolute;
-    width: calc(100% - 20px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: calc(100% - 5px);
     z-index: 10;
 }
 

@@ -4673,7 +4673,38 @@ class RecipeCard extends HTMLElement {
         const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
         const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
 
-        searchInput.addEventListener("input", () => this.updateSearchResults(searchInput.value, resultsList));
+        let selectedIndex = -1; // Tracks which result is selected
+
+        searchInput.addEventListener("input", () => {
+            selectedIndex = -1; // Reset selection
+            this.updateSearchResults(searchInput.value, resultsList);
+        });
+
+        searchInput.addEventListener("keydown", (event) => {
+            const items = resultsList.querySelectorAll("li");
+
+            if (event.key === "ArrowDown") {
+                event.preventDefault();
+                if (selectedIndex < items.length - 1) {
+                    selectedIndex++;
+                    this.updateSelection(items, selectedIndex);
+                }
+            } else if (event.key === "ArrowUp") {
+                event.preventDefault();
+                if (selectedIndex > 0) {
+                    selectedIndex--;
+                    this.updateSelection(items, selectedIndex);
+                }
+            } else if (event.key === "Enter") {
+                event.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    items[selectedIndex].click();
+                }
+            } else if (event.key === "Escape") {
+                resultsList.innerHTML = "";
+                searchInput.blur();
+            }
+        });
     }
 
     updateSearchResults(query, resultsList) {
@@ -4690,17 +4721,27 @@ class RecipeCard extends HTMLElement {
 
         const results = fuse.search(query).slice(0, 10); // Limit to top 10 results
         resultsList.innerHTML = results
-            .map(result => `<li data-index="${result.refIndex}">${result.item.name}</li>`)
+            .map((result, index) => `<li data-index="${result.refIndex}" data-pos="${index}">${result.item.name}</li>`)
             .join("");
 
-        resultsList.querySelectorAll("li").forEach(li => {
+        const items = resultsList.querySelectorAll("li");
+
+        items.forEach(li => {
             li.addEventListener("click", () => {
                 this._recipeIndex = li.getAttribute("data-index");
-                searchInput.value = this._parsedRecipes[this._recipeIndex].name; // Update input field
+                this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
                 resultsList.innerHTML = ""; // Clear results
                 this.doFillContent(); // Load the selected recipe
             });
         });
+    }
+
+    updateSelection(items, index) {
+        items.forEach(item => item.classList.remove("selected"));
+        if (items[index]) {
+            items[index].classList.add("selected");
+            items[index].scrollIntoView({ block: "nearest" });
+        }
     }
 
     doFillContent() {
