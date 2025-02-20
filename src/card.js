@@ -134,6 +134,7 @@ export class RecipeCard extends HTMLElement {
     updateSearchResults(query, resultsList) {
         if (!query.trim()) {
             resultsList.innerHTML = "";
+            resultsList.style.display = "none";
             return;
         }
 
@@ -148,12 +149,16 @@ export class RecipeCard extends HTMLElement {
             .map((result, index) => `<li data-index="${result.refIndex}" data-pos="${index}">${result.item.name}</li>`)
             .join("");
 
+        if (results.length > 0) {
+            resultsList.style.display = "block"; // Show list when there are results
+        }
+
         const items = resultsList.querySelectorAll("li");
 
         items.forEach(li => {
             li.addEventListener("click", () => {
                 this._recipeIndex = li.getAttribute("data-index");
-                searchInput.value = this._parsedRecipes[this._recipeIndex].name;
+                this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
                 this.clearSearchResults();
                 this.doFillContent(); // Load the selected recipe
             });
@@ -169,7 +174,7 @@ export class RecipeCard extends HTMLElement {
     }
 
     clearSearchResults() {
-        this._elements.selectdiv.querySelector("#recipe-results").innerHTML = "";
+        this._elements.selectdiv.querySelector("#recipe-results").style.display = "none";
     }
 
     doFillContent() {
