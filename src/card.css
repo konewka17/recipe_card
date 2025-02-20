@@ -42,3 +42,48 @@
     padding-inline-start: 20px;
     margin: 0;
 }
+
+/* Styles for the search bar */
+#recipe-search {
+    width: 100%;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    outline: none;
+}
+
+#recipe-search:focus {
+    border-color: #666;
+}
+
+/* Styles for the search results dropdown */
+#recipe-results {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    position: absolute;
+    width: calc(100% - 20px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+#recipe-results li {
+    padding: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#recipe-results li:hover {
+    background: #f0f0f0;
+}
+
+/* Make sure the container is positioned relative so absolute dropdown works */
+.selectdiv {
+    position: relative;
+}

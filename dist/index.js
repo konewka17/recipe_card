@@ -2799,7 +2799,7 @@ var loader = {
 };
 var load                = loader.load;
 
-var css = "\r\n.selectdiv {\r\n    margin: 10px\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri\r\n}\r\n\r\n.recipe-title {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 5px;\r\n    font-family: Cambria;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}";
+var css = "\r\n.selectdiv {\r\n    margin: 10px\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri\r\n}\r\n\r\n.recipe-title {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 5px;\r\n    font-family: Cambria;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n/* Styles for the search bar */\r\n#recipe-search {\r\n    width: 100%;\r\n    padding: 8px;\r\n    border-radius: 10px;\r\n    border: 1px solid #ccc;\r\n    font-size: 1em;\r\n    outline: none;\r\n}\r\n\r\n#recipe-search:focus {\r\n    border-color: #666;\r\n}\r\n\r\n/* Styles for the search results dropdown */\r\n#recipe-results {\r\n    list-style: none;\r\n    padding: 0;\r\n    margin: 5px 0 0;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    position: absolute;\r\n    width: calc(100% - 20px);\r\n    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\r\n    z-index: 10;\r\n}\r\n\r\n#recipe-results li {\r\n    padding: 8px;\r\n    cursor: pointer;\r\n    transition: background 0.3s;\r\n}\r\n\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Make sure the container is positioned relative so absolute dropdown works */\r\n.selectdiv {\r\n    position: relative;\r\n}\r\n";
 
 /**
  * Fuse.js v7.1.0 - Lightweight fuzzy-search (http://fusejs.io)
@@ -4665,37 +4665,42 @@ class RecipeCard extends HTMLElement {
 
 
     doFillSelect() {
-        let groupedRecipes = this._parsedRecipes.reduce((grouped, recipe, index) => {
-            const category = recipe.category || "Onbekend";
-            if (!grouped[category]) {
-                grouped[category] = [];
-            }
-            grouped[category].push({...recipe, index});
-            return grouped;
-        }, {});
-
-        const categoryOptions = Object.keys(groupedRecipes).map(category => {
-            // TODO let value be the index (key) in this._parsedRecipes instead of name
-            const options = groupedRecipes[category].map(recipe => {
-                return `<option value="${recipe.index}">${recipe.name}</option>`;
-            }).join("");
-            return `<optgroup label="${category}">${options}</optgroup>`;
-        }).join("");
-
         this._elements.selectdiv.innerHTML = `
-            <select id="recipe-selector">
-                <option value="">Select a recipe...</option>
-                ${categoryOptions}
-            </select>
-        `;
+        <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
+        <ul id="recipe-results" class="search-results"></ul>
+    `;
 
-        this._elements.selectdiv.querySelector("#recipe-selector").addEventListener("change", (event) => {
-            this._recipeIndex = event.target.value;
-            if (this._recipeIndex !== -1) {
-                this.doFillContent();
-            }
+        const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
+        const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
+
+        searchInput.addEventListener("input", () => this.updateSearchResults(searchInput.value, resultsList));
+    }
+
+    updateSearchResults(query, resultsList) {
+        if (!query.trim()) {
+            resultsList.innerHTML = "";
+            return;
+        }
+
+        const fuse = new Fuse(this._parsedRecipes, {
+            keys: ["name", "alternative_name"],
+            threshold: 0.3,
+            ignoreLocation: true
         });
 
+        const results = fuse.search(query).slice(0, 10); // Limit to top 10 results
+        resultsList.innerHTML = results
+            .map(result => `<li data-index="${result.refIndex}">${result.item.name}</li>`)
+            .join("");
+
+        resultsList.querySelectorAll("li").forEach(li => {
+            li.addEventListener("click", () => {
+                this._recipeIndex = li.getAttribute("data-index");
+                searchInput.value = this._parsedRecipes[this._recipeIndex].name; // Update input field
+                resultsList.innerHTML = ""; // Clear results
+                this.doFillContent(); // Load the selected recipe
+            });
+        });
     }
 
     doFillContent() {

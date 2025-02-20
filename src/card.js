@@ -79,37 +79,42 @@ export class RecipeCard extends HTMLElement {
 
 
     doFillSelect() {
-        let groupedRecipes = this._parsedRecipes.reduce((grouped, recipe, index) => {
-            const category = recipe.category || "Onbekend";
-            if (!grouped[category]) {
-                grouped[category] = [];
-            }
-            grouped[category].push({...recipe, index});
-            return grouped;
-        }, {});
-
-        const categoryOptions = Object.keys(groupedRecipes).map(category => {
-            // TODO let value be the index (key) in this._parsedRecipes instead of name
-            const options = groupedRecipes[category].map(recipe => {
-                return `<option value="${recipe.index}">${recipe.name}</option>`;
-            }).join("");
-            return `<optgroup label="${category}">${options}</optgroup>`;
-        }).join("");
-
         this._elements.selectdiv.innerHTML = `
-            <select id="recipe-selector">
-                <option value="">Select a recipe...</option>
-                ${categoryOptions}
-            </select>
-        `;
+        <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
+        <ul id="recipe-results" class="search-results"></ul>
+    `;
 
-        this._elements.selectdiv.querySelector("#recipe-selector").addEventListener("change", (event) => {
-            this._recipeIndex = event.target.value;
-            if (this._recipeIndex !== -1) {
-                this.doFillContent();
-            }
+        const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
+        const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
+
+        searchInput.addEventListener("input", () => this.updateSearchResults(searchInput.value, resultsList));
+    }
+
+    updateSearchResults(query, resultsList) {
+        if (!query.trim()) {
+            resultsList.innerHTML = "";
+            return;
+        }
+
+        const fuse = new Fuse(this._parsedRecipes, {
+            keys: ["name", "alternative_name"],
+            threshold: 0.3,
+            ignoreLocation: true
         });
 
+        const results = fuse.search(query).slice(0, 10); // Limit to top 10 results
+        resultsList.innerHTML = results
+            .map(result => `<li data-index="${result.refIndex}">${result.item.name}</li>`)
+            .join("");
+
+        resultsList.querySelectorAll("li").forEach(li => {
+            li.addEventListener("click", () => {
+                this._recipeIndex = li.getAttribute("data-index");
+                searchInput.value = this._parsedRecipes[this._recipeIndex].name; // Update input field
+                resultsList.innerHTML = ""; // Clear results
+                this.doFillContent(); // Load the selected recipe
+            });
+        });
     }
 
     doFillContent() {
