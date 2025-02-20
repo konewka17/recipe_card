@@ -87,7 +87,7 @@ export class RecipeCard extends HTMLElement {
         const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
         const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
 
-        let selectedIndex = -1; // Tracks which result is selected
+        let selectedIndex = -1; // Tracks selected item
 
         searchInput.addEventListener("input", () => {
             selectedIndex = -1; // Reset selection
@@ -95,7 +95,9 @@ export class RecipeCard extends HTMLElement {
         });
 
         searchInput.addEventListener("focus", () => {
-            this.updateSearchResults(searchInput.value, resultsList); // Show results when focused
+            if (searchInput.value.trim()) {
+                resultsList.style.display = "block"; // Show previous results
+            }
         });
 
         searchInput.addEventListener("keydown", (event) => {
@@ -124,10 +126,13 @@ export class RecipeCard extends HTMLElement {
             }
         });
 
-        document.addEventListener("click", (event) => {
-            if (!this._elements.selectdiv.contains(event.target)) {
-                this.clearSearchResults();
-            }
+        // Hide results when clicking outside, but use a slight delay
+        searchInput.addEventListener("focusout", (event) => {
+            setTimeout(() => {
+                if (!this._elements.selectdiv.contains(document.activeElement)) {
+                    this.clearSearchResults();
+                }
+            }, 150); // Delay ensures we don’t hide results if clicking inside them
         });
     }
 
@@ -150,7 +155,7 @@ export class RecipeCard extends HTMLElement {
             .join("");
 
         if (results.length > 0) {
-            resultsList.style.display = "block"; // Show list when there are results
+            resultsList.style.display = "block"; // Show when results exist
         }
 
         const items = resultsList.querySelectorAll("li");
@@ -158,19 +163,11 @@ export class RecipeCard extends HTMLElement {
         items.forEach(li => {
             li.addEventListener("click", () => {
                 this._recipeIndex = li.getAttribute("data-index");
-                this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
+                searchInput.value = this._parsedRecipes[this._recipeIndex].name;
                 this.clearSearchResults();
                 this.doFillContent(); // Load the selected recipe
             });
         });
-    }
-
-    updateSelection(items, index) {
-        items.forEach(item => item.classList.remove("selected"));
-        if (items[index]) {
-            items[index].classList.add("selected");
-            items[index].scrollIntoView({block: "nearest"});
-        }
     }
 
     clearSearchResults() {

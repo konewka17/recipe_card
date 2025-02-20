@@ -43,56 +43,52 @@
     margin: 0;
 }
 
-/* Styles for the search bar */
+/* Container for the search input and results */
+.selectdiv {
+    position: relative;
+    margin: 10px;
+}
+
+/* Search input field */
 #recipe-search {
-    width: calc(100% - 20px);
+    width: 100%;
     padding: 8px;
-    border-radius: 10px;
     border: 1px solid #ccc;
-    font-size: 1em;
-    outline: none;
+    border-radius: 10px;
+    font-size: 16px;
 }
 
-#recipe-search:focus {
-    border-color: #666;
-}
-
-/* Styles for the search results dropdown */
+/* Search results dropdown */
 #recipe-results {
-    list-style: none;
-    padding: 0;
-    margin: 4px 0 0;
-    max-height: 200px;
-    overflow-y: auto;
+    display: none; /* JS controls visibility */
+    position: absolute;
+    width: 100%;
     background: white;
     border: 1px solid #ccc;
     border-radius: 10px;
-    position: absolute;
-    width: calc(100% - 5px);
+    max-height: 200px;
+    overflow-y: auto;
     z-index: 10;
-    display: none;
+    padding: 5px 0;
+    list-style: none;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-#recipe-search:focus + #recipe-results,
-#recipe-results:not(:empty) {
-    display: block; /* Show when there are results or when focused */
-}
-
+/* Individual list items */
 #recipe-results li {
-    padding: 8px;
+    padding: 10px;
     cursor: pointer;
-    transition: background 0.3s;
+    font-size: 16px;
+    transition: background 0.2s ease;
 }
 
+/* Hover effect */
 #recipe-results li:hover {
     background: #f0f0f0;
 }
 
+/* Selected item (for keyboard navigation) */
 #recipe-results li.selected {
-    background: #ddd;
-}
-
-/* Make sure the container is positioned relative so absolute dropdown works */
-.selectdiv {
-    position: relative;
+    background: #dcdcdc;
+    font-weight: bold;
 }

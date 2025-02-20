@@ -2799,7 +2799,7 @@ var loader = {
 };
 var load                = loader.load;
 
-var css = "\r\n.selectdiv {\r\n    margin: 10px\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri\r\n}\r\n\r\n.recipe-title {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 5px;\r\n    font-family: Cambria;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n/* Styles for the search bar */\r\n#recipe-search {\r\n    width: calc(100% - 20px);\r\n    padding: 8px;\r\n    border-radius: 10px;\r\n    border: 1px solid #ccc;\r\n    font-size: 1em;\r\n    outline: none;\r\n}\r\n\r\n#recipe-search:focus {\r\n    border-color: #666;\r\n}\r\n\r\n/* Styles for the search results dropdown */\r\n#recipe-results {\r\n    list-style: none;\r\n    padding: 0;\r\n    margin: 4px 0 0;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    position: absolute;\r\n    width: calc(100% - 5px);\r\n    z-index: 10;\r\n    display: none;\r\n}\r\n\r\n#recipe-search:focus + #recipe-results,\r\n#recipe-results:not(:empty) {\r\n    display: block; /* Show when there are results or when focused */\r\n}\r\n\r\n#recipe-results li {\r\n    padding: 8px;\r\n    cursor: pointer;\r\n    transition: background 0.3s;\r\n}\r\n\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n#recipe-results li.selected {\r\n    background: #ddd;\r\n}\r\n\r\n/* Make sure the container is positioned relative so absolute dropdown works */\r\n.selectdiv {\r\n    position: relative;\r\n}\r\n";
+var css = "\r\n.selectdiv {\r\n    margin: 10px\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri\r\n}\r\n\r\n.recipe-title {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 5px;\r\n    font-family: Cambria;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n/* Container for the search input and results */\r\n.selectdiv {\r\n    position: relative;\r\n    margin: 10px;\r\n}\r\n\r\n/* Search input field */\r\n#recipe-search {\r\n    width: 100%;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    font-size: 16px;\r\n}\r\n\r\n/* Search results dropdown */\r\n#recipe-results {\r\n    display: none; /* JS controls visibility */\r\n    position: absolute;\r\n    width: 100%;\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    z-index: 10;\r\n    padding: 5px 0;\r\n    list-style: none;\r\n    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);\r\n}\r\n\r\n/* Individual list items */\r\n#recipe-results li {\r\n    padding: 10px;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n/* Hover effect */\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Selected item (for keyboard navigation) */\r\n#recipe-results li.selected {\r\n    background: #dcdcdc;\r\n    font-weight: bold;\r\n}\r\n";
 
 /**
  * Fuse.js v7.1.0 - Lightweight fuzzy-search (http://fusejs.io)
@@ -4673,7 +4673,7 @@ class RecipeCard extends HTMLElement {
         const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
         const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
 
-        let selectedIndex = -1; // Tracks which result is selected
+        let selectedIndex = -1; // Tracks selected item
 
         searchInput.addEventListener("input", () => {
             selectedIndex = -1; // Reset selection
@@ -4681,7 +4681,9 @@ class RecipeCard extends HTMLElement {
         });
 
         searchInput.addEventListener("focus", () => {
-            this.updateSearchResults(searchInput.value, resultsList); // Show results when focused
+            if (searchInput.value.trim()) {
+                resultsList.style.display = "block"; // Show previous results
+            }
         });
 
         searchInput.addEventListener("keydown", (event) => {
@@ -4710,10 +4712,13 @@ class RecipeCard extends HTMLElement {
             }
         });
 
-        document.addEventListener("click", (event) => {
-            if (!this._elements.selectdiv.contains(event.target)) {
-                this.clearSearchResults();
-            }
+        // Hide results when clicking outside, but use a slight delay
+        searchInput.addEventListener("focusout", (event) => {
+            setTimeout(() => {
+                if (!this._elements.selectdiv.contains(document.activeElement)) {
+                    this.clearSearchResults();
+                }
+            }, 150); // Delay ensures we don’t hide results if clicking inside them
         });
     }
 
@@ -4736,7 +4741,7 @@ class RecipeCard extends HTMLElement {
             .join("");
 
         if (results.length > 0) {
-            resultsList.style.display = "block"; // Show list when there are results
+            resultsList.style.display = "block"; // Show when results exist
         }
 
         const items = resultsList.querySelectorAll("li");
@@ -4744,19 +4749,11 @@ class RecipeCard extends HTMLElement {
         items.forEach(li => {
             li.addEventListener("click", () => {
                 this._recipeIndex = li.getAttribute("data-index");
-                this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
+                searchInput.value = this._parsedRecipes[this._recipeIndex].name;
                 this.clearSearchResults();
                 this.doFillContent(); // Load the selected recipe
             });
         });
-    }
-
-    updateSelection(items, index) {
-        items.forEach(item => item.classList.remove("selected"));
-        if (items[index]) {
-            items[index].classList.add("selected");
-            items[index].scrollIntoView({block: "nearest"});
-        }
     }
 
     clearSearchResults() {
