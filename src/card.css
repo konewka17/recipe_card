@@ -82,6 +82,10 @@
     background: #f0f0f0;
 }
 
+#recipe-results li.selected {
+    background: #ddd;
+}
+
 /* Make sure the container is positioned relative so absolute dropdown works */
 .selectdiv {
     position: relative;
