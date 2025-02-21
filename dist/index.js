@@ -4681,7 +4681,7 @@ class RecipeCard extends HTMLElement {
         });
 
         searchInput.addEventListener("focus", () => {
-            resultsList.style.display = "block"; // Show previous results
+            this.updateSearchResults(searchInput.value, resultsList);
         });
 
         searchInput.addEventListener("keydown", (event) => {
