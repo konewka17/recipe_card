@@ -4627,7 +4627,8 @@ class RecipeCard extends HTMLElement {
 
     async doFetchRecipes() {
         try {
-            const response = await fetch(this._config.url);
+            const urlWithTimestamp = `${this._config.url}?_=${new Date().getTime()}`;
+            const response = await fetch(urlWithTimestamp);
             const yamlText = await response.text();
 
             this._parsedRecipes = load(yamlText);
@@ -4666,9 +4667,8 @@ class RecipeCard extends HTMLElement {
 
     doFillSelect() {
         this._elements.selectdiv.innerHTML = `
-        <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
-        <ul id="recipe-results" class="search-results"></ul>
-    `;
+            <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
+            <ul id="recipe-results" class="search-results"></ul>`;
 
         const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
         const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
@@ -4681,9 +4681,7 @@ class RecipeCard extends HTMLElement {
         });
 
         searchInput.addEventListener("focus", () => {
-            if (searchInput.value.trim()) {
-                resultsList.style.display = "block"; // Show previous results
-            }
+            resultsList.style.display = "block"; // Show previous results
         });
 
         searchInput.addEventListener("keydown", (event) => {
@@ -4731,12 +4729,11 @@ class RecipeCard extends HTMLElement {
 
             resultsList.innerHTML = sortedRecipes
                 .map((recipe, index) => `
-                <li data-index="${index}">
-                    ${recipe.name}
-                    <span class="category-bubble">${recipe.category || "Uncategorized"}</span>
-                </li>
-            `)
-                .join("");
+                    <li data-index="${index}">
+                        ${recipe.name}
+                        <span class="category-bubble">${recipe.category || "Uncategorized"}</span>
+                    </li>
+                `).join("");
 
             resultsList.style.display = "block"; // Always show when empty
             this.addClickEvents(resultsList);
