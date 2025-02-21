@@ -1,4 +1,3 @@
-// import * as yaml from "https://unpkg.com/js-yaml?module"
 import {load} from "js-yaml";
 import css from "./card.css";
 import Fuse from "fuse.js";
@@ -11,6 +10,8 @@ export class RecipeCard extends HTMLElement {
     _elements = {};
     _parsedRecipes;
     _recipeIndex;
+    _searchFuse;
+    _categoryColors = {};
 
     // lifecycle
     constructor() {
@@ -43,10 +44,9 @@ export class RecipeCard extends HTMLElement {
         try {
             const response = await fetch(this._config.url);
             const yamlText = await response.text();
-
             this._parsedRecipes = load(yamlText);
-            // this._recipeIndex = Math.floor(Math.random() * this._parsedRecipes.length);
             this._recipeIndex = this.findBestMatchingRecipe(this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
+            this.initSearch();
             this.doFillCard();
         } catch (error) {
             throw new Error(`Error fetching or parsing the recipe file: ${error}`);
@@ -56,7 +56,10 @@ export class RecipeCard extends HTMLElement {
     doCard() {
         this._elements.card = document.createElement("ha-card");
         this._elements.card.innerHTML = `
-            <div class="selectdiv"></div>
+            <div class="search-container">
+                <input type="text" id="recipe-search" placeholder="Search recipes...">
+                <ul id="recipe-results" class="hidden"></ul>
+            </div>
             <div class="content"></div>
         `;
     }
@@ -72,44 +75,91 @@ export class RecipeCard extends HTMLElement {
     }
 
     doQueryElements() {
-        const card = this._elements.card;
-        this._elements.selectdiv = card.querySelector(".selectdiv");
-        this._elements.content = card.querySelector(".content");
+        this._elements.searchInput = this._elements.card.querySelector("#recipe-search");
+        this._elements.resultsList = this._elements.card.querySelector("#recipe-results");
+        this._elements.content = this._elements.card.querySelector(".content");
+
+        this._elements.searchInput.addEventListener("input", () => this.updateSearchResults());
+        this._elements.searchInput.addEventListener("focus", () => this.showResults());
+        document.addEventListener("click", (event) => this.handleClickOutside(event));
+        this._elements.searchInput.addEventListener("keydown", (event) => this.handleKeyboardNavigation(event));
     }
 
-
-    doFillSelect() {
-        let groupedRecipes = this._parsedRecipes.reduce((grouped, recipe, index) => {
-            const category = recipe.category || "Onbekend";
-            if (!grouped[category]) {
-                grouped[category] = [];
-            }
-            grouped[category].push({...recipe, index});
-            return grouped;
-        }, {});
-
-        const categoryOptions = Object.keys(groupedRecipes).map(category => {
-            // TODO let value be the index (key) in this._parsedRecipes instead of name
-            const options = groupedRecipes[category].map(recipe => {
-                return `<option value="${recipe.index}">${recipe.name}</option>`;
-            }).join("");
-            return `<optgroup label="${category}">${options}</optgroup>`;
-        }).join("");
-
-        this._elements.selectdiv.innerHTML = `
-            <select id="recipe-selector">
-                <option value="">Select a recipe...</option>
-                ${categoryOptions}
-            </select>
-        `;
-
-        this._elements.selectdiv.querySelector("#recipe-selector").addEventListener("change", (event) => {
-            this._recipeIndex = event.target.value;
-            if (this._recipeIndex !== -1) {
-                this.doFillContent();
-            }
+    initSearch() {
+        this._searchFuse = new Fuse(this._parsedRecipes, {
+            keys: ["name", "alternative_name"],
+            threshold: 0.6,
+            includeScore: true,
+            distance: 3,
+            ignoreLocation: true
         });
+        this.assignCategoryColors();
+        this._elements.searchInput.value = this._hass?.states["input_text.wat_eten_we_vandaag"]?.state || "";
+        this.updateSearchResults();
+    }
 
+    assignCategoryColors() {
+        const categories = [...new Set(this._parsedRecipes.map(r => r.category || "Unknown"))];
+        const colors = ["#ff5733", "#33ff57", "#3357ff", "#f1c40f", "#9b59b6", "#e74c3c", "#2ecc71"];
+        categories.forEach((category, index) => {
+            this._categoryColors[category] = colors[index % colors.length];
+        });
+    }
+
+    updateSearchResults() {
+        const query = this._elements.searchInput.value.trim();
+        let results = query ? this._searchFuse.search(query)
+                                  .map(r => r.item) : [...this._parsedRecipes].sort((a, b) => a.name.localeCompare(b.name));
+
+        this._elements.resultsList.innerHTML = results.map((recipe, index) => `
+            <li data-index="${index}" class="recipe-item">
+                <span class="recipe-category" style="background-color: ${this._categoryColors[recipe.category || "Unknown"]}">${recipe.category || "Unknown"}</span>
+                ${recipe.name}
+            </li>
+        `).join("");
+
+        this.showResults();
+        this._elements.resultsList.querySelectorAll(".recipe-item").forEach(item => {
+            item.addEventListener("click", () => this.selectRecipe(item.dataset.index));
+        });
+    }
+
+    showResults() {
+        this._elements.resultsList.classList.remove("hidden");
+    }
+
+    handleClickOutside(event) {
+        if (!this._elements.card.contains(event.target)) {
+            this._elements.resultsList.classList.add("hidden");
+        }
+    }
+
+    handleKeyboardNavigation(event) {
+        const items = Array.from(this._elements.resultsList.children);
+        let index = items.findIndex(item => item.classList.contains("selected"));
+
+        if (event.key === "ArrowDown") {
+            event.preventDefault();
+            if (index < items.length - 1) index++;
+        } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            if (index > 0) index--;
+        } else if (event.key === "Enter" && index >= 0) {
+            event.preventDefault();
+            this.selectRecipe(items[index].dataset.index);
+        } else if (event.key === "Escape") {
+            this._elements.resultsList.classList.add("hidden");
+            return;
+        }
+
+        items.forEach(item => item.classList.remove("selected"));
+        if (index >= 0) items[index].classList.add("selected");
+    }
+
+    selectRecipe(index) {
+        this._recipeIndex = index;
+        this.doFillContent();
+        this._elements.resultsList.classList.add("hidden");
     }
 
     doFillContent() {
