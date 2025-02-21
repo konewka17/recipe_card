@@ -194,6 +194,14 @@ export class RecipeCard extends HTMLElement {
         });
     }
 
+    updateSelection(items, index) {
+        items.forEach(item => item.classList.remove("selected"));
+        if (items[index]) {
+            items[index].classList.add("selected");
+            items[index].scrollIntoView({block: "nearest"});
+        }
+    }
+
     clearSearchResults() {
         this._elements.selectdiv.querySelector("#recipe-results").style.display = "none";
     }
