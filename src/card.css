@@ -62,16 +62,16 @@
 #recipe-results {
     display: none; /* JS controls visibility */
     position: absolute;
-    width: 100%;
+    width: calc(100% - 5px);
     background: white;
     border: 1px solid #ccc;
     border-radius: 10px;
     max-height: 200px;
     overflow-y: auto;
-    z-index: 10;
     padding: 5px 0;
     list-style: none;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 0;
 }
 
 /* Individual list items */
