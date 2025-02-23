@@ -5818,13 +5818,25 @@ class RecipeCard extends HTMLElement {
 
     async saveEditedRecipe() {
         const newYaml = this._elements.textarea.value;
+
+        this._elements.saveButton.disabled = true;
+        this._elements.saveButton.textContent = "Saving...";
+
         try {
             await this._hass.callService("recipes", "update_recipe", {
                 recipe_name: this.recipe.name,
                 new_yaml: newYaml
             });
+
+            this._elements.saveButton.textContent = "Save";
             this.doFetchRecipes();
         } catch (error) {
+            this._elements.saveButton.textContent = "Save Failed";
+            setTimeout(() => {
+                this._elements.saveButton.textContent = "Save";
+                this._elements.saveButton.disabled = false;
+            }, 2000);
+
             alert("Failed to save recipe: " + error.message);
         }
     }
