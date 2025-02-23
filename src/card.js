@@ -211,7 +211,7 @@ export class RecipeCard extends HTMLElement {
         this._elements.content.innerHTML = `
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
-                <ha-icon class="edit-button" icon="mdi:pencil"></ha-icon>
+                <div class="edit-icon"><ha-icon icon="mdi:pencil"></ha-icon></div>
             </div>
             <div class="recipe-content">
                 <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
@@ -226,7 +226,7 @@ export class RecipeCard extends HTMLElement {
             </div>
         `;
 
-        this._elements.editButton = this._elements.content.querySelector(".edit-button");
+        this._elements.editButton = this._elements.content.querySelector(".edit-icon");
         this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
     }
 
@@ -246,7 +246,7 @@ export class RecipeCard extends HTMLElement {
         const yamlContent = dump(this.recipe);
 
         this._elements.content.innerHTML = `
-            <textarea class="edit-area">${yamlContent}</textarea>
+            <textarea class="yaml-editor">${yamlContent}</textarea>
             <div class="button-container">
                 <button class="save-button">Save</button>
                 <button class="cancel-button">Cancel</button>
