@@ -326,7 +326,6 @@ export class RecipeCard extends HTMLElement {
     makeListToggleable(selector, storageKey) {
         const listItems = this._elements.content.querySelectorAll(selector);
         const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
-
         const storedState = recipeStorage[storageKey] || {};
 
         listItems.forEach(item => {
@@ -337,6 +336,8 @@ export class RecipeCard extends HTMLElement {
             }
 
             item.addEventListener("click", (event) => {
+                const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+                const storedState = recipeStorage[storageKey] || {};
                 event.stopPropagation();
                 item.classList.toggle("checked");
                 storedState[index] = item.classList.contains("checked");
