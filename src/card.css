@@ -30,20 +30,19 @@
     margin-left: 20px;
 }
 
-.ingredient-list {
+.ingredient-list, .instruction-list {
     padding-inline-start: 20px;
     margin: 0;
 }
 
-.ingredient {
+.ingredient-list li, .instruction-list li {
+    cursor: pointer;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
 }
 
-.amount {
-}
-
-.instruction-list {
-    padding-inline-start: 20px;
-    margin: 0;
+.ingredient-list li.checked, .instruction-list li.checked {
+    text-decoration: line-through;
+    color: #888;
 }
 
 /* Container for the search input and results */

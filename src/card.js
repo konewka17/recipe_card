@@ -226,6 +226,14 @@ export class RecipeCard extends HTMLElement {
             return;
         }
 
+        const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+
+        if (recipeStorage.currentRecipe !== this.recipe.name) {
+            recipeStorage.currentRecipe = this.recipe.name;
+            recipeStorage[this.recipe.name] = {};
+            localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+        }
+
         this._elements.content.innerHTML = `
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
@@ -234,18 +242,21 @@ export class RecipeCard extends HTMLElement {
             <div class="recipe-content">
                 <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
                 <ul class="ingredient-list">
-                    ${this.recipe.ingredients.map(this.yamlEntryToLi).join("")}
+                    ${this.recipe.ingredients.map((item, index) => this.yamlEntryToLi(item, `${index}`)).join("")}
                 </ul>
                 <br/> 
                 <i>Bereiding:</i>
                 <ol class="instruction-list">
-                    ${this.recipe.instructions.map(this.yamlEntryToLi).join("")}
+                    ${this.recipe.instructions.map((step, index) => this.yamlEntryToLi(step, `${index}`)).join("")}
                 </ol>
             </div>
         `;
 
         this._elements.editButton = this._elements.content.querySelector(".edit-icon");
         this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
+
+        this.makeListToggleable(".ingredient-list li", this.recipe.name, "ingredients");
+        this.makeListToggleable(".instruction-list li", this.recipe.name, "instructions");
     }
 
     doFillCard() {
@@ -309,26 +320,51 @@ export class RecipeCard extends HTMLElement {
         }
     }
 
+    makeListToggleable(selector, recipeName, storageKey) {
+        const listItems = this._elements.content.querySelectorAll(selector);
+        const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+
+        if (!recipeStorage[recipeName]) {
+            recipeStorage[recipeName] = {};
+        }
+
+        const storedState = recipeStorage[recipeName][storageKey] || {};
+
+        listItems.forEach(item => {
+            const index = item.getAttribute("data-index");
+
+            if (storedState[index]) {
+                item.classList.add("checked");
+            }
+
+            item.addEventListener("click", () => {
+                item.classList.toggle("checked");
+                storedState[index] = item.classList.contains("checked");
+                recipeStorage[recipeName][storageKey] = storedState;
+                localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+            });
+        });
+    }
+
 
     // helpers
-    yamlEntryToLi(yamlEntry) {
+    yamlEntryToLi(yamlEntry, parentIndex = "") {
         if (Array.isArray(yamlEntry)) {
-            return "<ul>" + yamlEntry.map(val => this.yamlEntryToLi(val)).join("") + "</ul>";
+            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}`)).join("") + `</ul>`;
         } else if (typeof yamlEntry === "object") {
             let [key, value] = Object.entries(yamlEntry)[0];
             key = key.charAt(0).toUpperCase() + key.slice(1);
-            if (value) {
-                if (Array.isArray(value)) {
-                    value = "<ul>" + value.map(val => this.yamlEntryToLi(val)).join("") + "</ul>";
-                }
-                value = ": " + value;
+            let nestedContent = "";
+
+            if (Array.isArray(value)) {
+                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}`)).join("") + `</ul>`;
             } else {
-                value = "";
+                nestedContent = value ? `: ${value}` : "";
             }
-            return `<li><span class="ingredient">${key}</span><span class="amount">${value}</span></li>`;
+
+            return `<li data-index="${parentIndex}"><span class="ingredient">${key}</span><span class="amount">${nestedContent}</span></li>`;
         } else {
-            yamlEntry = yamlEntry.charAt(0).toUpperCase() + yamlEntry.slice(1);
-            return `<li>${yamlEntry}</li>`;
+            return `<li data-index="${parentIndex}">${yamlEntry}</li>`;
         }
     }
 
