@@ -3768,7 +3768,7 @@ var dumper = {
 var load                = loader.load;
 var dump                = dumper.dump;
 
-var css = "\r\n.selectdiv {\r\n    margin: 10px;\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri;\r\n}\r\n\r\n.recipe-header {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 5px;\r\n    font-family: Cambria;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n/* Container for the search input and results */\r\n.selectdiv {\r\n    position: relative;\r\n    margin: 10px;\r\n}\r\n\r\n/* Search input field */\r\n#recipe-search {\r\n    width: calc(100% - 20px);\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    font-size: 16px;\r\n}\r\n\r\n/* Search results dropdown */\r\n#recipe-results {\r\n    display: none; /* JS controls visibility */\r\n    position: absolute;\r\n    width: calc(100% - 5px);\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    padding: 5px 0;\r\n    list-style: none;\r\n    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);\r\n    margin: 0;\r\n}\r\n\r\n/* Individual list items */\r\n#recipe-results li {\r\n    padding: 2px 10px;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n/* Hover effect */\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Selected item (for keyboard navigation) */\r\n#recipe-results li.selected {\r\n    background: #dcdcdc;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Category bubble */\r\n.category-bubble {\r\n    display: inline-block;\r\n    background-color: #f4a261;\r\n    color: white;\r\n    font-size: 12px;\r\n    padding: 4px 8px;\r\n    border-radius: 28px;\r\n    margin-left: 10px;\r\n}\r\n\r\n/* Edit icon */\r\n.edit-icon {\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #666;\r\n    transition: color 0.2s ease;\r\n}\r\n\r\n.edit-icon:hover {\r\n    color: #333;\r\n}\r\n\r\n/* YAML edit textarea */\r\n.yaml-editor {\r\n    width: calc(100% - 15px);\r\n    height: 400px;\r\n    font-family: monospace;\r\n    font-size: 14px;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 5px;\r\n    resize: vertical;\r\n}\r\n\r\n/* Button container */\r\n.button-container {\r\n    display: flex;\r\n    justify-content: flex-end;\r\n    margin-top: 10px;\r\n}\r\n\r\n/* Save and cancel buttons */\r\n.save-button, .cancel-button {\r\n    padding: 8px 12px;\r\n    font-size: 14px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    margin-left: 5px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n.save-button {\r\n    background-color: #4caf50;\r\n    color: white;\r\n}\r\n\r\n.save-button:hover {\r\n    background-color: #45a049;\r\n}\r\n\r\n.cancel-button {\r\n    background-color: #f44336;\r\n    color: white;\r\n}\r\n\r\n.cancel-button:hover {\r\n    background-color: #d32f2f;\r\n}\r\n";
+var css = "\r\n.selectdiv {\r\n    margin: 10px;\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri;\r\n}\r\n\r\n.recipe-header {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 2px;\r\n    font-family: Cambria;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n/* Container for the search input and results */\r\n.selectdiv {\r\n    position: relative;\r\n    margin: 10px;\r\n}\r\n\r\n/* Search input field */\r\n#recipe-search {\r\n    width: calc(100% - 20px);\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    font-size: 16px;\r\n}\r\n\r\n/* Search results dropdown */\r\n#recipe-results {\r\n    display: none; /* JS controls visibility */\r\n    position: absolute;\r\n    width: calc(100% - 5px);\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    padding: 5px 0;\r\n    list-style: none;\r\n    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);\r\n    margin: 0;\r\n}\r\n\r\n/* Individual list items */\r\n#recipe-results li {\r\n    padding: 2px 10px;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n/* Hover effect */\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Selected item (for keyboard navigation) */\r\n#recipe-results li.selected {\r\n    background: #dcdcdc;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Category bubble */\r\n.category-bubble {\r\n    display: inline-block;\r\n    background-color: #f4a261;\r\n    color: white;\r\n    font-size: 12px;\r\n    padding: 4px 8px;\r\n    border-radius: 28px;\r\n    margin-left: 10px;\r\n}\r\n\r\n/* Edit icon */\r\n.edit-icon {\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #666;\r\n    transition: all 0.2s ease;\r\n    padding: 3px;\r\n}\r\n\r\n.edit-icon:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n}\r\n\r\n/* YAML edit textarea */\r\n.yaml-editor {\r\n    width: calc(100% - 15px);\r\n    height: 400px;\r\n    font-family: monospace;\r\n    font-size: 14px;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 5px;\r\n    resize: vertical;\r\n}\r\n\r\n/* Button container */\r\n.button-container {\r\n    display: flex;\r\n    justify-content: flex-end;\r\n    margin-top: 10px;\r\n}\r\n\r\n/* Save and cancel buttons */\r\n.save-button, .cancel-button {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 8px 12px;\r\n    font-size: 16px;\r\n    border: none;\r\n    background: none;\r\n    cursor: pointer;\r\n    margin-left: 5px;\r\n    transition: opacity 0.2s ease;\r\n}\r\n\r\n.save-button:hover, .cancel-button:hover {\r\n    opacity: 0.7;\r\n}\r\n\r\n.save-button.disabled, .cancel-button.disabled {\r\n    opacity: 0.4;\r\n    cursor: not-allowed;\r\n}\r\n\r\n";
 
 /**
  * Fuse.js v7.1.0 - Lightweight fuzzy-search (http://fusejs.io)
@@ -5803,8 +5803,8 @@ class RecipeCard extends HTMLElement {
         this._elements.content.innerHTML = `
             <textarea class="yaml-editor">${yamlContent}</textarea>
             <div class="button-container">
-                <button class="save-button">Save</button>
-                <button class="cancel-button">Cancel</button>
+                <button class="save-button"><ha-icon icon="mdi:content-save"></ha-icon></button>
+                <button class="cancel-button"><ha-icon icon="mdi:close"></ha-icon></button>
             </div>
         `;
 
@@ -5819,8 +5819,9 @@ class RecipeCard extends HTMLElement {
     async saveEditedRecipe() {
         const newYaml = this._elements.textarea.value;
 
+        this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:loading" spin></ha-icon>`;
         this._elements.saveButton.disabled = true;
-        this._elements.saveButton.textContent = "Saving...";
+        this._elements.cancelButton.disabled = true;
 
         try {
             await this._hass.callService("recipes", "update_recipe", {
@@ -5828,13 +5829,17 @@ class RecipeCard extends HTMLElement {
                 new_yaml: newYaml
             });
 
-            this._elements.saveButton.textContent = "Save";
+            this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:content-save"></ha-icon>`;
+            this._elements.saveButton.disabled = false;
+            this._elements.cancelButton.disabled = false;
+            this._isEditing = false;
             this.doFetchRecipes();
         } catch (error) {
-            this._elements.saveButton.textContent = "Save Failed";
+            this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:alert-circle-outline"></ha-icon>`;
             setTimeout(() => {
-                this._elements.saveButton.textContent = "Save";
+                this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:content-save"></ha-icon>`;  // Reset the icon after 2 seconds
                 this._elements.saveButton.disabled = false;
+                this._elements.cancelButton.disabled = false;
             }, 2000);
 
             alert("Failed to save recipe: " + error.message);

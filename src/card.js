@@ -248,8 +248,8 @@ export class RecipeCard extends HTMLElement {
         this._elements.content.innerHTML = `
             <textarea class="yaml-editor">${yamlContent}</textarea>
             <div class="button-container">
-                <button class="save-button">Save</button>
-                <button class="cancel-button">Cancel</button>
+                <button class="save-button"><ha-icon icon="mdi:content-save"></ha-icon></button>
+                <button class="cancel-button"><ha-icon icon="mdi:close"></ha-icon></button>
             </div>
         `;
 
@@ -264,8 +264,9 @@ export class RecipeCard extends HTMLElement {
     async saveEditedRecipe() {
         const newYaml = this._elements.textarea.value;
 
+        this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:loading" spin></ha-icon>`;
         this._elements.saveButton.disabled = true;
-        this._elements.saveButton.textContent = "Saving...";
+        this._elements.cancelButton.disabled = true;
 
         try {
             await this._hass.callService("recipes", "update_recipe", {
@@ -273,14 +274,17 @@ export class RecipeCard extends HTMLElement {
                 new_yaml: newYaml
             });
 
-            this._elements.saveButton.textContent = "Save";
-            this._isEditing = False;
+            this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:content-save"></ha-icon>`;
+            this._elements.saveButton.disabled = false;
+            this._elements.cancelButton.disabled = false;
+            this._isEditing = false;
             this.doFetchRecipes();
         } catch (error) {
-            this._elements.saveButton.textContent = "Save Failed";
+            this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:alert-circle-outline"></ha-icon>`;
             setTimeout(() => {
-                this._elements.saveButton.textContent = "Save";
+                this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:content-save"></ha-icon>`;  // Reset the icon after 2 seconds
                 this._elements.saveButton.disabled = false;
+                this._elements.cancelButton.disabled = false;
             }, 2000);
 
             alert("Failed to save recipe: " + error.message);

@@ -19,7 +19,7 @@
     font-weight: bold;
     margin-bottom: 10px;
     border-bottom: black 1px solid;
-    padding-bottom: 5px;
+    padding-bottom: 2px;
     font-family: Cambria;
     display: flex;
     justify-content: space-between;
@@ -112,11 +112,13 @@
     cursor: pointer;
     font-size: 20px;
     color: #666;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    padding: 3px;
 }
 
 .edit-icon:hover {
     color: #333;
+    background-color: #ddd;
 }
 
 /* YAML edit textarea */
@@ -140,29 +142,23 @@
 
 /* Save and cancel buttons */
 .save-button, .cancel-button {
+    display: flex;
+    align-items: center;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: 16px;
     border: none;
-    border-radius: 5px;
+    background: none;
     cursor: pointer;
     margin-left: 5px;
-    transition: background 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
-.save-button {
-    background-color: #4caf50;
-    color: white;
+.save-button:hover, .cancel-button:hover {
+    opacity: 0.7;
 }
 
-.save-button:hover {
-    background-color: #45a049;
+.save-button.disabled, .cancel-button.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
-.cancel-button {
-    background-color: #f44336;
-    color: white;
-}
-
-.cancel-button:hover {
-    background-color: #d32f2f;
-}
