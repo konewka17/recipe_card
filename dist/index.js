@@ -5810,7 +5810,7 @@ class RecipeCard extends HTMLElement {
 
         this._elements.saveButton = this._elements.content.querySelector(".save-button");
         this._elements.cancelButton = this._elements.content.querySelector(".cancel-button");
-        this._elements.textarea = this._elements.content.querySelector(".edit-area");
+        this._elements.textarea = this._elements.content.querySelector(".yaml-editor");
 
         this._elements.saveButton.addEventListener("click", () => this.saveEditedRecipe());
         this._elements.cancelButton.addEventListener("click", () => this.toggleEditMode());
