@@ -358,7 +358,7 @@ export class RecipeCard extends HTMLElement {
     // helpers
     yamlEntryToLi(yamlEntry, parentIndex = "") {
         if (Array.isArray(yamlEntry)) {
-            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}-`))
+            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}-${index}`))
                                      .join("") + `</ul>`;
         } else if (typeof yamlEntry === "object") {
             let [key, value] = Object.entries(yamlEntry)[0];
@@ -366,7 +366,7 @@ export class RecipeCard extends HTMLElement {
             let nestedContent = "";
 
             if (Array.isArray(value)) {
-                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}-`))
+                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}-${index}`))
                                               .join("") + `</ul>`;
             } else {
                 nestedContent = value ? `: ${value}` : "";
