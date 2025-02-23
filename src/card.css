@@ -119,6 +119,7 @@
 .edit-icon:hover {
     color: #333;
     background-color: #ddd;
+    border-radius: 100%;
 }
 
 /* YAML edit textarea */
@@ -144,21 +145,18 @@
 .save-button, .cancel-button {
     display: flex;
     align-items: center;
-    padding: 8px 12px;
+    padding: 7px;
     font-size: 16px;
     border: none;
     background: none;
     cursor: pointer;
     margin-left: 5px;
     transition: opacity 0.2s ease;
+    color: #666;
 }
 
 .save-button:hover, .cancel-button:hover {
-    opacity: 0.7;
+    color: #333;
+    background-color: #ddd;
+    border-radius: 100%;
 }
-
-.save-button.disabled, .cancel-button.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-

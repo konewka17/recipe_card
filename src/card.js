@@ -264,7 +264,7 @@ export class RecipeCard extends HTMLElement {
     async saveEditedRecipe() {
         const newYaml = this._elements.textarea.value;
 
-        this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:loading" spin></ha-icon>`;
+        this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:progress-clock" spin></ha-icon>`;
         this._elements.saveButton.disabled = true;
         this._elements.cancelButton.disabled = true;
 
