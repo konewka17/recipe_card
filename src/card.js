@@ -243,7 +243,7 @@ export class RecipeCard extends HTMLElement {
         }
 
         this._isEditing = true;
-        const yamlContent = dump(this.recipe);
+        const yamlContent = dump(this.recipe, {lineWidth: -1, styles: { '!!null': 'empty' }});
 
         this._elements.content.innerHTML = `
             <textarea class="yaml-editor">${yamlContent}</textarea>
