@@ -336,7 +336,8 @@ export class RecipeCard extends HTMLElement {
                 item.classList.add("checked");
             }
 
-            item.addEventListener("click", () => {
+            item.addEventListener("click", (event) => {
+                event.stopPropagation();
                 item.classList.toggle("checked");
                 storedState[index] = item.classList.contains("checked");
                 recipeStorage[storageKey] = storedState;

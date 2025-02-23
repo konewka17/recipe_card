@@ -5784,10 +5784,7 @@ class RecipeCard extends HTMLElement {
         const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
 
         if (recipeStorage.currentRecipe !== this.recipe.name) {
-            recipeStorage.currentRecipe = this.recipe.name;
-            recipeStorage.ingredients = {};
-            recipeStorage.instructions = {};
-            localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+            this.reset_recipe_storage();
         }
 
         this._elements.content.innerHTML = `
@@ -5813,6 +5810,11 @@ class RecipeCard extends HTMLElement {
 
         this.makeListToggleable(".ingredient-list li", "ingredients");
         this.makeListToggleable(".instruction-list li", "instructions");
+    }
+
+    reset_recipe_storage() {
+        let recipeStorage = {currentRecipe: this.recipe.name, ingredients: {}, instructions: {}};
+        localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
     }
 
     doFillCard() {
@@ -5889,7 +5891,8 @@ class RecipeCard extends HTMLElement {
                 item.classList.add("checked");
             }
 
-            item.addEventListener("click", () => {
+            item.addEventListener("click", (event) => {
+                event.stopPropagation();
                 item.classList.toggle("checked");
                 storedState[index] = item.classList.contains("checked");
                 recipeStorage[storageKey] = storedState;
@@ -5902,14 +5905,16 @@ class RecipeCard extends HTMLElement {
     // helpers
     yamlEntryToLi(yamlEntry, parentIndex = "") {
         if (Array.isArray(yamlEntry)) {
-            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}`)).join("") + `</ul>`;
+            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}-`))
+                                     .join("") + `</ul>`;
         } else if (typeof yamlEntry === "object") {
             let [key, value] = Object.entries(yamlEntry)[0];
             key = key.charAt(0).toUpperCase() + key.slice(1);
             let nestedContent = "";
 
             if (Array.isArray(value)) {
-                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}`)).join("") + `</ul>`;
+                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}-`))
+                                              .join("") + `</ul>`;
             } else {
                 nestedContent = value ? `: ${value}` : "";
             }
