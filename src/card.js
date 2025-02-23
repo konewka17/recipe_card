@@ -236,6 +236,7 @@ export class RecipeCard extends HTMLElement {
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
                 <div class="edit-icon"><ha-icon icon="mdi:pencil"></ha-icon></div>
+                <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
             </div>
             <div class="recipe-content">
                 <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
@@ -252,6 +253,12 @@ export class RecipeCard extends HTMLElement {
 
         this._elements.editButton = this._elements.content.querySelector(".edit-icon");
         this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
+
+        this._elements.resetStrikeoutButton = this._elements.content.querySelector(".reset-strikeout-icon");
+        this._elements.resetStrikeoutButton.addEventListener("click", () => {
+            this.reset_recipe_storage();
+            this.doFillContent();
+        });
 
         this.makeListToggleable(".ingredient-list li", "ingredients");
         this.makeListToggleable(".instruction-list li", "instructions");

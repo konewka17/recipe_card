@@ -132,7 +132,7 @@
 }
 
 /* Edit icon */
-.edit-icon {
+.edit-icon, .reset-icon {
     cursor: pointer;
     font-size: 20px;
     color: #666;
@@ -140,10 +140,16 @@
     padding: 3px;
 }
 
-.edit-icon:hover {
+.edit-icon:hover, .reset-icon:hover {
     color: #333;
     background-color: #ddd;
     border-radius: 100%;
+}
+
+.reset-icon {
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 
 /* YAML edit textarea */
