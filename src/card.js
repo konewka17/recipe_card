@@ -236,9 +236,9 @@ export class RecipeCard extends HTMLElement {
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
                 <div class="edit-icon"><ha-icon icon="mdi:pencil"></ha-icon></div>
-                <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
             </div>
             <div class="recipe-content">
+                <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
                 <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
                 <ul class="ingredient-list">
                     ${this.recipe.ingredients.map((item, index) => this.yamlEntryToLi(item, `${index}`)).join("")}

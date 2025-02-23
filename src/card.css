@@ -28,6 +28,7 @@
 
 .recipe-content {
     margin-left: 20px;
+    position: relative;
 }
 
 .ingredient-list, .instruction-list {
@@ -132,7 +133,7 @@
 }
 
 /* Edit icon */
-.edit-icon, .reset-icon {
+.edit-icon, .reset-strikeout-icon {
     cursor: pointer;
     font-size: 20px;
     color: #666;
@@ -140,16 +141,16 @@
     padding: 3px;
 }
 
-.edit-icon:hover, .reset-icon:hover {
+.edit-icon:hover, .reset-strikeout-icon:hover {
     color: #333;
     background-color: #ddd;
     border-radius: 100%;
 }
 
-.reset-icon {
+.reset-strikeout-icon {
     position: absolute;
-    right: 10px;
-    top: 10px;
+    right: 0;
+    top: 0;
 }
 
 /* YAML edit textarea */
