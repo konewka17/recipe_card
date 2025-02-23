@@ -1,5 +1,5 @@
 // import * as yaml from "https://unpkg.com/js-yaml?module"
-import {load} from "js-yaml";
+import {load, dump} from "js-yaml";
 import css from "./card.css";
 import Fuse from "fuse.js";
 
@@ -90,13 +90,11 @@ export class RecipeCard extends HTMLElement {
         let selectedIndex = -1; // Tracks selected item
 
         searchInput.addEventListener("input", () => {
-            selectedIndex = -1; // Reset selection
+            selectedIndex = -1;
             this.updateSearchResults(searchInput.value, resultsList);
         });
 
-        searchInput.addEventListener("focus", () => {
-            this.updateSearchResults(searchInput.value, resultsList);
-        });
+        searchInput.addEventListener("focus", () => this.updateSearchResults(searchInput.value, resultsList));
 
         searchInput.addEventListener("keydown", (event) => {
             const items = resultsList.querySelectorAll("li");
@@ -211,7 +209,10 @@ export class RecipeCard extends HTMLElement {
         }
 
         this._elements.content.innerHTML = `
-            <div class="recipe-title">${this.recipe.name}</div>
+            <div class="recipe-header">
+                <div class="recipe-title">${this.recipe.name}</div>
+                <ha-icon class="edit-button" icon="mdi:pencil"></ha-icon>
+            </div>
             <div class="recipe-content">
                 <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
                 <ul class="ingredient-list">
@@ -224,12 +225,53 @@ export class RecipeCard extends HTMLElement {
                 </ol>
             </div>
         `;
+
+        this._elements.editButton = this._elements.content.querySelector(".edit-button");
+        this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
     }
 
     doFillCard() {
         this.doFillSelect();
         this.doFillContent();
     }
+
+    toggleEditMode() {
+        if (this._isEditing) {
+            this.doFillContent();
+            this._isEditing = false;
+            return;
+        }
+
+        this._isEditing = true;
+        const yamlContent = dump(this.recipe);
+
+        this._elements.content.innerHTML = `
+            <textarea class="edit-area">${yamlContent}</textarea>
+            <button class="save-button">Save</button>
+            <button class="cancel-button">Cancel</button>
+        `;
+
+        this._elements.saveButton = this._elements.content.querySelector(".save-button");
+        this._elements.cancelButton = this._elements.content.querySelector(".cancel-button");
+        this._elements.textarea = this._elements.content.querySelector(".edit-area");
+
+        this._elements.saveButton.addEventListener("click", () => this.saveEditedRecipe());
+        this._elements.cancelButton.addEventListener("click", () => this.toggleEditMode());
+    }
+
+    async saveEditedRecipe() {
+        const newYaml = this._elements.textarea.value;
+        try {
+            await this._hass.callService("recipes", "update_recipe", {
+                name: this.recipe.name,
+                new_yaml: newYaml
+            });
+            this.doFetchRecipes();
+        } catch (error) {
+            alert("Failed to save recipe: " + error.message);
+        }
+    }
+
 
     // helpers
     yamlEntryToLi(yamlEntry) {
