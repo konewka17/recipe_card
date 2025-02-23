@@ -81,17 +81,23 @@ export class RecipeCard extends HTMLElement {
 
     doFillSelect() {
         this._elements.selectdiv.innerHTML = `
-            <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
-            <ul id="recipe-results" class="search-results"></ul>`;
+            <div class="search-container">
+                <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
+                <ha-icon id="clear-search" icon="mdi:close-circle" style="display: none"></ha-icon>
+            </div>
+            <ul id="recipe-results" class="search-results"></ul>
+        `;
 
         const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
         const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
+        const clearIcon = this._elements.selectdiv.querySelector("#clear-search");
 
-        let selectedIndex = -1; // Tracks selected item
+        let selectedIndex = -1;
 
         searchInput.addEventListener("input", () => {
             selectedIndex = -1;
             this.updateSearchResults(searchInput.value, resultsList);
+            clearIcon.style.display = searchInput.value ? "block" : "none"; // Show clear icon only when there's text
         });
 
         searchInput.addEventListener("focus", () => this.updateSearchResults(searchInput.value, resultsList));
@@ -122,13 +128,19 @@ export class RecipeCard extends HTMLElement {
             }
         });
 
-        // Hide results when clicking outside, but use a slight delay
         searchInput.addEventListener("focusout", (event) => {
             setTimeout(() => {
                 if (!this._elements.selectdiv.contains(document.activeElement)) {
                     this.clearSearchResults();
                 }
-            }, 150); // Delay ensures we don’t hide results if clicking inside them
+            }, 150);
+        });
+
+        // Clear input when clicking the clear icon
+        clearIcon.addEventListener("click", () => {
+            searchInput.value = "";
+            this.clearSearchResults();
+            clearIcon.style.display = "none"; // Hide the icon
         });
     }
 

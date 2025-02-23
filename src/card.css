@@ -53,12 +53,31 @@
 }
 
 /* Search input field */
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
 #recipe-search {
-    width: calc(100% - 20px);
+    flex-grow: 1;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 10px;
     font-size: 16px;
+}
+
+#clear-search {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #888;
+}
+
+#clear-search:hover {
+    color: #555;
 }
 
 /* Search results dropdown */

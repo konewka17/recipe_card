@@ -3768,7 +3768,7 @@ var dumper = {
 var load                = loader.load;
 var dump                = dumper.dump;
 
-var css = "\r\n.selectdiv {\r\n    margin: 10px;\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri;\r\n}\r\n\r\n.recipe-header {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 2px;\r\n    font-family: Cambria;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n/* Container for the search input and results */\r\n.selectdiv {\r\n    position: relative;\r\n    margin: 10px;\r\n}\r\n\r\n/* Search input field */\r\n#recipe-search {\r\n    width: calc(100% - 20px);\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    font-size: 16px;\r\n}\r\n\r\n/* Search results dropdown */\r\n#recipe-results {\r\n    display: none; /* JS controls visibility */\r\n    position: absolute;\r\n    width: calc(100% - 5px);\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    padding: 5px 0;\r\n    list-style: none;\r\n    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);\r\n    margin: 0;\r\n}\r\n\r\n/* Individual list items */\r\n#recipe-results li {\r\n    padding: 2px 10px;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n/* Hover effect */\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Selected item (for keyboard navigation) */\r\n#recipe-results li.selected {\r\n    background: #dcdcdc;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Category bubble */\r\n.category-bubble {\r\n    display: inline-block;\r\n    background-color: #f4a261;\r\n    color: white;\r\n    font-size: 12px;\r\n    padding: 4px 8px;\r\n    border-radius: 28px;\r\n    margin-left: 10px;\r\n}\r\n\r\n/* Edit icon */\r\n.edit-icon {\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #666;\r\n    transition: all 0.2s ease;\r\n    padding: 3px;\r\n}\r\n\r\n.edit-icon:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n    border-radius: 100%;\r\n}\r\n\r\n/* YAML edit textarea */\r\n.yaml-editor {\r\n    width: calc(100% - 15px);\r\n    height: 400px;\r\n    font-family: monospace;\r\n    font-size: 14px;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 5px;\r\n    resize: vertical;\r\n}\r\n\r\n/* Button container */\r\n.button-container {\r\n    display: flex;\r\n    justify-content: flex-end;\r\n    margin-top: 10px;\r\n}\r\n\r\n/* Save and cancel buttons */\r\n.save-button, .cancel-button {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 7px;\r\n    font-size: 16px;\r\n    border: none;\r\n    background: none;\r\n    cursor: pointer;\r\n    margin-left: 5px;\r\n    transition: opacity 0.2s ease;\r\n    color: #666;\r\n}\r\n\r\n.save-button:hover, .cancel-button:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n    border-radius: 100%;\r\n}\r\n";
+var css = "\r\n.selectdiv {\r\n    margin: 10px;\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n    font-family: Calibri;\r\n}\r\n\r\n.recipe-header {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 2px;\r\n    font-family: Cambria;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n}\r\n\r\n.ingredient-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient {\r\n}\r\n\r\n.amount {\r\n}\r\n\r\n.instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n/* Container for the search input and results */\r\n.selectdiv {\r\n    position: relative;\r\n    margin: 10px;\r\n}\r\n\r\n/* Search input field */\r\n.search-container {\r\n    position: relative;\r\n    display: flex;\r\n    align-items: center;\r\n    width: 100%;\r\n}\r\n\r\n#recipe-search {\r\n    flex-grow: 1;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    font-size: 16px;\r\n}\r\n\r\n#clear-search {\r\n    position: absolute;\r\n    right: 10px;\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #888;\r\n}\r\n\r\n#clear-search:hover {\r\n    color: #555;\r\n}\r\n\r\n/* Search results dropdown */\r\n#recipe-results {\r\n    display: none; /* JS controls visibility */\r\n    position: absolute;\r\n    width: calc(100% - 5px);\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    padding: 5px 0;\r\n    list-style: none;\r\n    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);\r\n    margin: 0;\r\n}\r\n\r\n/* Individual list items */\r\n#recipe-results li {\r\n    padding: 2px 10px;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n/* Hover effect */\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Selected item (for keyboard navigation) */\r\n#recipe-results li.selected {\r\n    background: #dcdcdc;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Category bubble */\r\n.category-bubble {\r\n    display: inline-block;\r\n    background-color: #f4a261;\r\n    color: white;\r\n    font-size: 12px;\r\n    padding: 4px 8px;\r\n    border-radius: 28px;\r\n    margin-left: 10px;\r\n}\r\n\r\n/* Edit icon */\r\n.edit-icon {\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #666;\r\n    transition: all 0.2s ease;\r\n    padding: 3px;\r\n}\r\n\r\n.edit-icon:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n    border-radius: 100%;\r\n}\r\n\r\n/* YAML edit textarea */\r\n.yaml-editor {\r\n    width: calc(100% - 15px);\r\n    height: 400px;\r\n    font-family: monospace;\r\n    font-size: 14px;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 5px;\r\n    resize: vertical;\r\n}\r\n\r\n/* Button container */\r\n.button-container {\r\n    display: flex;\r\n    justify-content: flex-end;\r\n    margin-top: 10px;\r\n}\r\n\r\n/* Save and cancel buttons */\r\n.save-button, .cancel-button {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 7px;\r\n    font-size: 16px;\r\n    border: none;\r\n    background: none;\r\n    cursor: pointer;\r\n    margin-left: 5px;\r\n    transition: opacity 0.2s ease;\r\n    color: #666;\r\n}\r\n\r\n.save-button:hover, .cancel-button:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n    border-radius: 100%;\r\n}\r\n";
 
 /**
  * Fuse.js v7.1.0 - Lightweight fuzzy-search (http://fusejs.io)
@@ -5636,17 +5636,23 @@ class RecipeCard extends HTMLElement {
 
     doFillSelect() {
         this._elements.selectdiv.innerHTML = `
-            <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
-            <ul id="recipe-results" class="search-results"></ul>`;
+            <div class="search-container">
+                <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
+                <ha-icon id="clear-search" icon="mdi:close-circle" style="display: none"></ha-icon>
+            </div>
+            <ul id="recipe-results" class="search-results"></ul>
+        `;
 
         const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
         const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
+        const clearIcon = this._elements.selectdiv.querySelector("#clear-search");
 
-        let selectedIndex = -1; // Tracks selected item
+        let selectedIndex = -1;
 
         searchInput.addEventListener("input", () => {
             selectedIndex = -1;
             this.updateSearchResults(searchInput.value, resultsList);
+            clearIcon.style.display = searchInput.value ? "block" : "none"; // Show clear icon only when there's text
         });
 
         searchInput.addEventListener("focus", () => this.updateSearchResults(searchInput.value, resultsList));
@@ -5677,13 +5683,19 @@ class RecipeCard extends HTMLElement {
             }
         });
 
-        // Hide results when clicking outside, but use a slight delay
         searchInput.addEventListener("focusout", (event) => {
             setTimeout(() => {
                 if (!this._elements.selectdiv.contains(document.activeElement)) {
                     this.clearSearchResults();
                 }
-            }, 150); // Delay ensures we don’t hide results if clicking inside them
+            }, 150);
+        });
+
+        // Clear input when clicking the clear icon
+        clearIcon.addEventListener("click", () => {
+            searchInput.value = "";
+            this.clearSearchResults();
+            clearIcon.style.display = "none"; // Hide the icon
         });
     }
 
