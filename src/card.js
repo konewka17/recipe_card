@@ -247,8 +247,10 @@ export class RecipeCard extends HTMLElement {
 
         this._elements.content.innerHTML = `
             <textarea class="edit-area">${yamlContent}</textarea>
-            <button class="save-button">Save</button>
-            <button class="cancel-button">Cancel</button>
+            <div class="button-container">
+                <button class="save-button">Save</button>
+                <button class="cancel-button">Cancel</button>
+            </div>
         `;
 
         this._elements.saveButton = this._elements.content.querySelector(".save-button");
@@ -263,7 +265,7 @@ export class RecipeCard extends HTMLElement {
         const newYaml = this._elements.textarea.value;
         try {
             await this._hass.callService("recipes", "update_recipe", {
-                name: this.recipe.name,
+                recipe_name: this.recipe.name,
                 new_yaml: newYaml
             });
             this.doFetchRecipes();
