@@ -163,13 +163,21 @@ export class RecipeCard extends HTMLElement {
         }
 
         // Normal search using Fuse.js
-        const fuse = new Fuse(this._parsedRecipes, {
+        let fuse = new Fuse(this._parsedRecipes, {
             keys: ["name", "alternative_name"],
             threshold: 0.3,
             ignoreLocation: true
         });
 
-        const results = fuse.search(query).slice(0, 10); // Limit to top 10 results
+        let results = fuse.search(query);
+        if (results.length === 0) {
+            fuse = new Fuse(this._parsedRecipes, {
+                keys: ["ingredients", "instructions"],
+                threshold: 0.3,
+                ignoreLocation: true
+            });
+            results = fuse.search(query);
+        }
         resultsList.innerHTML = results
             .map(result => `
             <li data-index="${result.refIndex}">
@@ -253,7 +261,7 @@ export class RecipeCard extends HTMLElement {
         }
 
         this._isEditing = true;
-        const yamlContent = dump(this.recipe, {lineWidth: -1, styles: { '!!null': 'empty' }});
+        const yamlContent = dump(this.recipe, {lineWidth: -1, styles: {"!!null": "empty"}});
 
         this._elements.content.innerHTML = `
             <textarea class="yaml-editor">${yamlContent}</textarea>
