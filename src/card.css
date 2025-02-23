@@ -74,11 +74,17 @@
     cursor: pointer;
     font-size: 20px;
     color: #888;
+    display: none;
 }
 
 #clear-search:hover {
     color: #555;
 }
+
+#recipe-search:not(:placeholder-shown) + #clear-search {
+    display: block;
+}
+
 
 /* Search results dropdown */
 #recipe-results {

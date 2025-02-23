@@ -83,7 +83,7 @@ export class RecipeCard extends HTMLElement {
         this._elements.selectdiv.innerHTML = `
             <div class="search-container">
                 <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
-                <ha-icon id="clear-search" icon="mdi:close-circle" style="display: none"></ha-icon>
+                <ha-icon id="clear-search" icon="mdi:close-circle"></ha-icon>
             </div>
             <ul id="recipe-results" class="search-results"></ul>
         `;
@@ -97,7 +97,6 @@ export class RecipeCard extends HTMLElement {
         searchInput.addEventListener("input", () => {
             selectedIndex = -1;
             this.updateSearchResults(searchInput.value, resultsList);
-            clearIcon.style.display = searchInput.value ? "block" : "none"; // Show clear icon only when there's text
         });
 
         searchInput.addEventListener("focus", () => this.updateSearchResults(searchInput.value, resultsList));
@@ -140,7 +139,6 @@ export class RecipeCard extends HTMLElement {
         clearIcon.addEventListener("click", () => {
             searchInput.value = "";
             this.clearSearchResults();
-            clearIcon.style.display = "none"; // Hide the icon
         });
     }
 
