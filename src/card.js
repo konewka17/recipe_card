@@ -274,6 +274,7 @@ export class RecipeCard extends HTMLElement {
             });
 
             this._elements.saveButton.textContent = "Save";
+            this._isEditing = False;
             this.doFetchRecipes();
         } catch (error) {
             this._elements.saveButton.textContent = "Save Failed";
