@@ -229,9 +229,7 @@ export class RecipeCard extends HTMLElement {
         const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
 
         if (recipeStorage.currentRecipe !== this.recipe.name) {
-            recipeStorage.currentRecipe = this.recipe.name;
-            recipeStorage[this.recipe.name] = {};
-            localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+            this.reset_recipe_storage();
         }
 
         this._elements.content.innerHTML = `
@@ -255,8 +253,13 @@ export class RecipeCard extends HTMLElement {
         this._elements.editButton = this._elements.content.querySelector(".edit-icon");
         this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
 
-        this.makeListToggleable(".ingredient-list li", this.recipe.name, "ingredients");
-        this.makeListToggleable(".instruction-list li", this.recipe.name, "instructions");
+        this.makeListToggleable(".ingredient-list li", "ingredients");
+        this.makeListToggleable(".instruction-list li", "instructions");
+    }
+
+    reset_recipe_storage() {
+        let recipeStorage = {currentRecipe: this.recipe.name, ingredients: {}, instructions: {}};
+        localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
     }
 
     doFillCard() {
@@ -320,15 +323,11 @@ export class RecipeCard extends HTMLElement {
         }
     }
 
-    makeListToggleable(selector, recipeName, storageKey) {
+    makeListToggleable(selector, storageKey) {
         const listItems = this._elements.content.querySelectorAll(selector);
         const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
 
-        if (!recipeStorage[recipeName]) {
-            recipeStorage[recipeName] = {};
-        }
-
-        const storedState = recipeStorage[recipeName][storageKey] || {};
+        const storedState = recipeStorage[storageKey] || {};
 
         listItems.forEach(item => {
             const index = item.getAttribute("data-index");
@@ -340,7 +339,7 @@ export class RecipeCard extends HTMLElement {
             item.addEventListener("click", () => {
                 item.classList.toggle("checked");
                 storedState[index] = item.classList.contains("checked");
-                recipeStorage[recipeName][storageKey] = storedState;
+                recipeStorage[storageKey] = storedState;
                 localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
             });
         });
@@ -350,14 +349,16 @@ export class RecipeCard extends HTMLElement {
     // helpers
     yamlEntryToLi(yamlEntry, parentIndex = "") {
         if (Array.isArray(yamlEntry)) {
-            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}`)).join("") + `</ul>`;
+            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}-`))
+                                     .join("") + `</ul>`;
         } else if (typeof yamlEntry === "object") {
             let [key, value] = Object.entries(yamlEntry)[0];
             key = key.charAt(0).toUpperCase() + key.slice(1);
             let nestedContent = "";
 
             if (Array.isArray(value)) {
-                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}`)).join("") + `</ul>`;
+                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}${index}-`))
+                                              .join("") + `</ul>`;
             } else {
                 nestedContent = value ? `: ${value}` : "";
             }

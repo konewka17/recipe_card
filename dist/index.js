@@ -5785,7 +5785,8 @@ class RecipeCard extends HTMLElement {
 
         if (recipeStorage.currentRecipe !== this.recipe.name) {
             recipeStorage.currentRecipe = this.recipe.name;
-            recipeStorage[this.recipe.name] = {};
+            recipeStorage.ingredients = {};
+            recipeStorage.instructions = {};
             localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
         }
 
@@ -5810,8 +5811,8 @@ class RecipeCard extends HTMLElement {
         this._elements.editButton = this._elements.content.querySelector(".edit-icon");
         this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
 
-        this.makeListToggleable(".ingredient-list li", this.recipe.name, "ingredients");
-        this.makeListToggleable(".instruction-list li", this.recipe.name, "instructions");
+        this.makeListToggleable(".ingredient-list li", "ingredients");
+        this.makeListToggleable(".instruction-list li", "instructions");
     }
 
     doFillCard() {
@@ -5875,15 +5876,11 @@ class RecipeCard extends HTMLElement {
         }
     }
 
-    makeListToggleable(selector, recipeName, storageKey) {
+    makeListToggleable(selector, storageKey) {
         const listItems = this._elements.content.querySelectorAll(selector);
         const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
 
-        if (!recipeStorage[recipeName]) {
-            recipeStorage[recipeName] = {};
-        }
-
-        const storedState = recipeStorage[recipeName][storageKey] || {};
+        const storedState = recipeStorage[storageKey] || {};
 
         listItems.forEach(item => {
             const index = item.getAttribute("data-index");
@@ -5895,7 +5892,7 @@ class RecipeCard extends HTMLElement {
             item.addEventListener("click", () => {
                 item.classList.toggle("checked");
                 storedState[index] = item.classList.contains("checked");
-                recipeStorage[recipeName][storageKey] = storedState;
+                recipeStorage[storageKey] = storedState;
                 localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
             });
         });
