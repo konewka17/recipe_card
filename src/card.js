@@ -46,7 +46,6 @@ export class RecipeCard extends HTMLElement {
             const yamlText = await response.text();
 
             this._parsedRecipes = load(yamlText);
-            // this._recipeIndex = Math.floor(Math.random() * this._parsedRecipes.length);
             this._recipeIndex = this.findBestMatchingRecipe(this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
             this.doFillCard();
         } catch (error) {
