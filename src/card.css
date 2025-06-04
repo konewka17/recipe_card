@@ -6,7 +6,7 @@
 
     body {
         margin: 0;
-        padding: 10mm;
+        padding: 20mm;
         width: calc(148mm / 0.9);
         height: calc(210mm / 0.9);
         box-sizing: border-box;
