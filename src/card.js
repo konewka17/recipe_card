@@ -296,7 +296,9 @@ export class RecipeCard extends HTMLElement {
             </style>
         </head>
         <body onload="window.print(); //window.close();">
-            ${printContent}
+            <div class="print-container">
+                ${printContent}
+            </div>
         </body>
         </html>
     `);
