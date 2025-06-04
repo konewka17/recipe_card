@@ -5793,6 +5793,7 @@ class RecipeCard extends HTMLElement {
             </div>
             <div class="recipe-content">
                 <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
+                <div class="print-icon"><ha-icon icon="mdi:printer"></ha-icon></div>
                 <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
                 <ul class="ingredient-list">
                     ${this.recipe.ingredients.map((item, index) => this.yamlEntryToLi(item, `${index}`)).join("")}
@@ -5814,6 +5815,9 @@ class RecipeCard extends HTMLElement {
             this.doFillContent();
         });
 
+        this._elements.printButton = this._elements.content.querySelector(".print-icon");
+        this._elements.printButton.addEventListener("click", () => this.printRecipe());
+
         this.makeListToggleable(".ingredient-list li", "ingredients");
         this.makeListToggleable(".instruction-list li", "instructions");
     }
@@ -5821,6 +5825,58 @@ class RecipeCard extends HTMLElement {
     reset_recipe_storage() {
         let recipeStorage = {currentRecipe: this.recipe.name, ingredients: {}, instructions: {}};
         localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+    }
+
+    printRecipe() {
+        const printContent = this._elements.content.innerHTML;
+        const printWindow = window.open("", "", "width=800,height=600");
+        printWindow.document.write(`
+        <html>
+        <head>
+            <style>
+                @media print {
+                    @page {
+                        size: A5 portrait;
+                        margin: 10mm;
+                    }
+                
+                    body {
+                        width: 148mm;
+                        height: 210mm;
+                        font-size: 12pt;
+                    }
+                
+                    .edit-icon,
+                    .reset-strikeout-icon,
+                    .print-icon,
+                    .search-container,
+                    #recipe-results {
+                        display: none !important;
+                    }
+                }
+
+                body {
+                    font-family: Calibri;
+                    margin: 0;
+                    padding: 10mm;
+                    width: 148mm;
+                    height: 210mm;
+                    box-sizing: border-box;
+                }
+                .recipe-content {
+                    margin-left: 0;
+                }
+                .edit-icon, .reset-strikeout-icon, .print-icon {
+                    display: none !important;
+                }
+            </style>
+        </head>
+        <body onload="window.print(); window.close();">
+            ${printContent}
+        </body>
+        </html>
+    `);
+        printWindow.document.close();
     }
 
     doFillCard() {
