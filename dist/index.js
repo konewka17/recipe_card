@@ -5850,7 +5850,7 @@ class RecipeCard extends HTMLElement {
                 }
             </style>
         </head>
-        <body onload="window.print(); window.close();">
+        <body onload="window.print(); //window.close();">
             ${printContent}
         </body>
         </html>
