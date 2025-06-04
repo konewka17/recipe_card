@@ -279,29 +279,8 @@ export class RecipeCard extends HTMLElement {
         <html>
         <head>
             <style>
-                @media print {
-                    @page {
-                        size: A5 portrait;
-                        margin: 10mm;
-                    }
-                
-                    body {
-                        width: 148mm;
-                        height: 210mm;
-                        font-size: 12pt;
-                    }
-                
-                    .edit-icon,
-                    .reset-strikeout-icon,
-                    .print-icon,
-                    .search-container,
-                    #recipe-results {
-                        display: none !important;
-                    }
-                }
-
+                ${css}
                 body {
-                    font-family: Calibri;
                     margin: 0;
                     padding: 10mm;
                     width: 148mm;

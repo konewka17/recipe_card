@@ -1,3 +1,23 @@
+@media print {
+    @page {
+        size: A5 portrait;
+        margin: 10mm;
+    }
+
+    body {
+        width: 148mm;
+        height: 210mm;
+        font-size: 12pt;
+    }
+
+    .edit-icon,
+    .reset-strikeout-icon,
+    .print-icon,
+    .search-container,
+    #recipe-results {
+        display: none !important;
+    }
+}
 
 .selectdiv {
     margin: 10px;
