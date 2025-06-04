@@ -6,24 +6,18 @@
 
     body {
         margin: 0;
-        padding: 20mm;
-        width: 148mm;
-        height: 210mm;
+        padding: 16mm;
+        width: calc(148mm / 0.9);
+        height: calc(210mm / 0.9);
         box-sizing: border-box;
+        scale: 0.9;
+        transform-origin: top left;
         page-break-inside: avoid;
         break-inside: avoid;
         overflow: hidden;
         position: fixed;
         top: 0;
         left: 0;
-    }
-
-    .recipe-header {
-        font-size: 14pt;
-    }
-
-    .recipe-content {
-        font-size: 11pt;
     }
 }
 
@@ -33,6 +27,14 @@
 .print-container .search-container,
 .print-container #recipe-results {
     display: none !important;
+}
+
+.print-container .recipe-header {
+    font-size: 14pt;
+}
+
+.print-container .recipe-content {
+    font-size: 11pt;
 }
 
 .selectdiv {
