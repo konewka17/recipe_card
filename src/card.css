@@ -3,28 +3,21 @@
         size: A4 landscape;
         margin: 0;
     }
+}
 
-    body {
-        width: 148mm;
-        height: 210mm;
-        font-size: 12pt;
-    }
+.print-container {
+    width: 148mm;
+    height: 210mm;
+    padding: 10mm;
+    box-sizing: border-box;
+}
 
-    .print-container {
-        width: 148mm;
-        height: 210mm;
-        padding: 10mm;
-        box-sizing: border-box;
-        font-family: Calibri, sans-serif;
-    }
-
-    .edit-icon,
-    .reset-strikeout-icon,
-    .print-icon,
-    .search-container,
-    #recipe-results {
-        display: none !important;
-    }
+.print-container .edit-icon,
+.print-container .reset-strikeout-icon,
+.print-container .print-icon,
+.print-container .search-container,
+.print-container #recipe-results {
+    display: none !important;
 }
 
 .selectdiv {
