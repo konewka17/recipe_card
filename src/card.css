@@ -32,7 +32,6 @@
 
 .content {
     padding: 16px;
-    font-family: Calibri;
 }
 
 .recipe-header {
@@ -50,6 +49,7 @@
 .recipe-content {
     margin-left: 20px;
     position: relative;
+    font-family: Calibri;
 }
 
 .ingredient-list, .instruction-list {
