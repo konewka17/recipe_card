@@ -278,22 +278,7 @@ export class RecipeCard extends HTMLElement {
         printWindow.document.write(`
         <html>
         <head>
-            <style>
-                ${css}
-                body {
-                    margin: 0;
-                    padding: 10mm;
-                    width: 148mm;
-                    height: 210mm;
-                    box-sizing: border-box;
-                }
-                .recipe-content {
-                    margin-left: 0;
-                }
-                .edit-icon, .reset-strikeout-icon, .print-icon {
-                    display: none !important;
-                }
-            </style>
+            <style> ${css} </style>
         </head>
         <body onload="window.print(); //window.close();">
             <div class="print-container">
