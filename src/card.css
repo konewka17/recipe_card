@@ -7,17 +7,23 @@
     body {
         margin: 0;
         padding: 20mm;
-        width: calc(148mm / 0.9);
-        height: calc(210mm / 0.9);
+        width: 148mm;
+        height: 210mm;
         box-sizing: border-box;
-        scale: 0.9;
-        transform-origin: top left;
         page-break-inside: avoid;
         break-inside: avoid;
         overflow: hidden;
         position: fixed;
         top: 0;
         left: 0;
+    }
+
+    .recipe-header {
+        font-size: 14pt;
+    }
+
+    .recipe-content {
+        font-size: 11pt;
     }
 }
 
