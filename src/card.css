@@ -172,7 +172,7 @@
 }
 
 /* Edit icon */
-.edit-icon, .reset-strikeout-icon, .print-icon {
+.add-icon, .edit-icon, .reset-strikeout-icon, .print-icon {
     cursor: pointer;
     font-size: 20px;
     color: #666;
@@ -180,7 +180,7 @@
     padding: 3px;
 }
 
-.edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover {
+.add-icon, .edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover {
     color: #333;
     background-color: #ddd;
     border-radius: 100%;
