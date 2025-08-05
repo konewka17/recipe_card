@@ -186,6 +186,21 @@
     border-radius: 100%;
 }
 
+.header-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.add-icon, .edit-icon {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.add-icon:hover, .edit-icon:hover {
+    opacity: 1;
+}
+
 .reset-strikeout-icon {
     position: absolute;
     right: 0;

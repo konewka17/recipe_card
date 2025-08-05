@@ -234,7 +234,10 @@ export class RecipeCard extends HTMLElement {
         this._elements.content.innerHTML = `
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
-                <div class="edit-icon"><ha-icon icon="mdi:pencil"></ha-icon></div>
+                <div class="header-icons">
+                    <div class="add-icon"><ha-icon icon="mdi:plus"></ha-icon></div>
+                    <div class="edit-icon"><ha-icon icon="mdi:pencil"></ha-icon></div>
+                </div>
             </div>
             <div class="recipe-content">
                 <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
@@ -253,6 +256,9 @@ export class RecipeCard extends HTMLElement {
 
         this._elements.editButton = this._elements.content.querySelector(".edit-icon");
         this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
+
+        this._elements.addButton = this._elements.content.querySelector(".add-icon");
+        this._elements.addButton.addEventListener("click", () => this.createNewRecipe());
 
         this._elements.resetStrikeoutButton = this._elements.content.querySelector(".reset-strikeout-icon");
         this._elements.resetStrikeoutButton.addEventListener("click", () => {
@@ -348,6 +354,28 @@ export class RecipeCard extends HTMLElement {
             }, 2000);
 
             alert("Failed to save recipe: " + error.message);
+        }
+    }
+
+    async createNewRecipe() {
+        const recipeName = prompt("Voer de naam in voor het nieuwe recept:");
+
+        if (!recipeName) {
+            return; // Gebruiker heeft geannuleerd
+        }
+
+        try {
+            await this._hass.callService("recipes", "create_recipe", {
+                recipe_name: recipeName
+            });
+            await this.doFetchRecipes();
+            const newIndex = this._parsedRecipes.findIndex(recipe => recipe.name === recipeName);
+            if (newIndex !== -1) {
+                this._recipeIndex = newIndex;
+                this.doFillContent();
+            }
+        } catch (error) {
+            alert("Fout bij het aanmaken van het recept: " + error.message);
         }
     }
 
