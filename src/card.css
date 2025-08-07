@@ -180,7 +180,7 @@
     padding: 3px;
 }
 
-.add-icon, .edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover {
+.add-icon:hover, .edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover {
     color: #333;
     background-color: #ddd;
     border-radius: 100%;
