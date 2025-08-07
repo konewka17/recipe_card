@@ -5789,7 +5789,7 @@ class RecipeCard extends HTMLElement {
         this._elements.content.innerHTML = `
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
-                <div class="header-icons">
+                <div class="header-icons"> 
                     <div class="add-icon"><ha-icon icon="mdi:plus-circle-outline"></ha-icon></div>
                     <div class="edit-icon"><ha-icon icon="mdi:pencil"></ha-icon></div>
                 </div>
