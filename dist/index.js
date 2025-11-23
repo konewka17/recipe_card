@@ -6067,7 +6067,7 @@ class RecipeCard extends HTMLElement {
                     class="recipe-quantity"
                     data-original="${quantityPart.replace(/"/g, "&quot;")}"
                     data-index="${parentIndex}"
-                >${unitPart}</strong>`;
+                >${quantityPart}</span>${unitPart}</strong>`;
             }
 
             lastIndex = regex.lastIndex;
