@@ -5568,7 +5568,7 @@ class RecipeCard extends HTMLElement {
     _recipeIndex;
     _basePersons;
     _currentPersons;
-    _quantityRegex = /(?<!persons: )([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)(?: ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
+    _quantityRegex = /([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)( ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
 
     // lifecycle
     constructor() {
@@ -6052,23 +6052,18 @@ class RecipeCard extends HTMLElement {
         let match;
 
         while ((match = regex.exec(text)) !== null) {
+            console.log(match);
             const fullMatch = match[0];
             const quantityPart = match[1];
-            console.log(match);
-            const unitPart = fullMatch.replace(quantityPart, "").trim();
-
-            const isSpecialUnit = /^(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))$/i.test(unitPart);
+            const unitPart = match[2];
+            const isSpecialUnit = match[3] !== undefined;
 
             result += text.slice(lastIndex, match.index);
 
             if (isSpecialUnit) {
-                result += fullMatch; // leave unchanged
+                result += fullMatch; // leave unchanged (minutes, degrees, ...)
             } else {
-                result += `<strong><span 
-                class="recipe-quantity"
-                data-original="${quantityPart.replace(/"/g, "&quot;")}"
-                data-index="${parentIndex}"
-            >${quantityPart}</span></strong>${unitPart ? " " + unitPart : ""}`;
+                result += `<strong>${quantityPart}${unitPart}</strong>`;
             }
 
             lastIndex = regex.lastIndex;
