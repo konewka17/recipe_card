@@ -5566,6 +5566,9 @@ class RecipeCard extends HTMLElement {
     _elements = {};
     _parsedRecipes;
     _recipeIndex;
+    _basePersons;
+    _currentPersons;
+    _quantityRegex = /(?<!persons: )([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)(?: ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?=[^A-Za-z])/g;
 
     // lifecycle
     constructor() {
@@ -5786,6 +5789,9 @@ class RecipeCard extends HTMLElement {
             this.reset_recipe_storage();
         }
 
+        this._basePersons = this.recipe?.persons || 1;
+        this._currentPersons = recipeStorage?.persons || this._basePersons;
+
         this._elements.content.innerHTML = `
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
@@ -5797,7 +5803,14 @@ class RecipeCard extends HTMLElement {
             <div class="recipe-content">
                 <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
                 <div class="print-icon"><ha-icon icon="mdi:printer"></ha-icon></div>
-                <i>Ingrediënten${this.recipe?.persons ? ` (${this.recipe.persons} personen)` : ""}:</i>
+                ${this.recipe?.persons ? `
+                    <div class="persons-control">
+                        <button class="persons-minus">-</button>
+                        <span class="persons-count">${this._currentPersons}</span>
+                        <span class="persons-label">personen</span>
+                        <button class="persons-plus">+</button>
+                    </div>` : ""}
+                <i>Ingrediënten</i>
                 <ul class="ingredient-list">
                     ${this.recipe.ingredients.map((item, index) => this.yamlEntryToLi(item, `${index}`)).join("")}
                 </ul>
@@ -5824,13 +5837,57 @@ class RecipeCard extends HTMLElement {
         this._elements.printButton = this._elements.content.querySelector(".print-icon");
         this._elements.printButton.addEventListener("click", () => this.printRecipe());
 
+        this._elements.personsMinus = this._elements.content.querySelector(".persons-minus");
+        this._elements.personsMinus.addEventListener("click", () => {
+            if (this._currentPersons > 1) {
+                this._currentPersons--;
+                this._elements.personsCount.textContent = this._currentPersons;
+                this.updatePersonsStorageAndScale();
+                this.scaleAllQuantities();
+            }
+        });
+
+        this._elements.personsPlus = this._elements.content.querySelector(".persons-plus");
+        this._elements.personsPlus.addEventListener("click", () => {
+            this._currentPersons++;
+            this._elements.personsCount.textContent = this._currentPersons;
+            this.updatePersonsStorageAndScale();
+            this.scaleAllQuantities();
+        });
+
+        this._elements.personsCount = this._elements.content.querySelector(".persons-count");
+
         this.makeListToggleable(".ingredient-list li", "ingredients");
         this.makeListToggleable(".instruction-list li", "instructions");
     }
 
     reset_recipe_storage() {
-        let recipeStorage = {currentRecipe: this.recipe.name, ingredients: {}, instructions: {}};
+        let recipeStorage = {
+            currentRecipe: this.recipe.name, ingredients: {}, instructions: {}, persons: this._basePersons
+        };
         localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+    }
+
+    updatePersonsStorageAndScale() {
+        let recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+        recipeStorage.persons = this._currentPersons;
+        localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+    };
+
+    scaleAllQuantities() {
+        const multiplier = this._currentPersons / this._basePersons;
+        const spans = this._elements.content.querySelectorAll(".recipe-quantity");
+
+        spans.forEach(span => this.scaleQuantitySpan(span, multiplier));
+    }
+
+    scaleQuantitySpan(span, multiplier) {
+        const orig = span.dataset.original;
+        if (!orig) return;
+
+        const scaled = this.computeScaledQuantity(orig, multiplier);
+
+        span.textContent = scaled;
     }
 
     printRecipe() {
@@ -5973,13 +6030,154 @@ class RecipeCard extends HTMLElement {
                 nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}-${index}`))
                                               .join("") + `</ul>`;
             } else {
-                nestedContent = value ? `: ${value}` : "";
+                const text = value ? this.markQuantitiesInText(String(value), parentIndex) : "";
+                nestedContent = text ? `: ${text}` : "";
             }
 
             return `<li data-index="${parentIndex}"><span class="ingredient">${key}</span><span class="amount">${nestedContent}</span></li>`;
         } else {
-            return `<li data-index="${parentIndex}">${yamlEntry}</li>`;
+            const processed = this.markQuantitiesInText(String(yamlEntry), parentIndex);
+            return `<li data-index="${parentIndex}">${processed}</li>`;
         }
+    }
+
+    markQuantitiesInText(text, parentIndex) {
+        if (!text) return text;
+
+        const regex = this._quantityRegex;
+        regex.lastIndex = 0;
+
+        let result = "";
+        let lastIndex = 0;
+        let match;
+
+        while ((match = regex.exec(text)) !== null) {
+            const fullMatch = match[0];
+            const quantityPart = match[1];
+            const unitPart = fullMatch.replace(quantityPart, "").trim();
+
+            const isSpecialUnit = /^(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))$/i.test(unitPart);
+
+            result += text.slice(lastIndex, match.index);
+
+            if (isSpecialUnit) {
+                result += fullMatch; // leave unchanged
+            } else {
+                result += `<strong><span 
+                class="recipe-quantity"
+                data-original="${quantityPart.replace(/"/g, "&quot;")}"
+                data-index="${parentIndex}"
+            >${quantityPart}</span></strong>${unitPart ? " " + unitPart : ""}`;
+            }
+
+            lastIndex = regex.lastIndex;
+        }
+
+        result += text.slice(lastIndex);
+        return result;
+    }
+
+    computeScaledQuantity(originalText, multiplier) {
+        if (!originalText) return originalText;
+
+        // Fraction-char map
+        const fracMap = {
+            "¼": 0.25,
+            "½": 0.5,
+            "¾": 0.75
+        };
+
+        // Reverse map for pretty-printing
+        const fracReverse = {
+            0.25: "¼",
+            0.5: "½",
+            0.75: "¾"
+        };
+
+        // Convert fraction characters into numbers
+        const parseNumber = (str) => {
+            str = str.trim();
+
+            // If pure fraction char
+            if (fracMap[str] != null) {
+                return fracMap[str];
+            }
+
+            // If fraction appended to a number (e.g. "1½")
+            const lastChar = str.slice(-1);
+            if (fracMap[lastChar] != null) {
+                const base = parseFloat(str.slice(0, -1)) || 0;
+                return base + fracMap[lastChar];
+            }
+
+            // If "1/2" or "3/4"
+            if (str.includes("/")) {
+                const [a, b] = str.split("/").map(Number);
+                if (!isNaN(a) && !isNaN(b) && b !== 0) {
+                    return a / b;
+                }
+            }
+
+            // Normal decimal or integer
+            const num = parseFloat(str.replace(",", "."));
+            return isNaN(num) ? null : num;
+        };
+
+        // Convert a number back into a readable pretty fraction or decimal
+        const formatNumber = (num) => {
+            if (num == null || isNaN(num)) return "";
+
+            // Check for whole number
+            if (Math.abs(num - Math.round(num)) < 0.01) {
+                return String(Math.round(num));
+            }
+
+            // Try to match fractions
+            const fractional = num - Math.floor(num);
+            const roundedFrac = Math.round(fractional * 100) / 100;
+
+            if (fracReverse[roundedFrac]) {
+                const whole = Math.floor(num);
+                return whole > 0 ? `${whole}${fracReverse[roundedFrac]}` : fracReverse[roundedFrac];
+            }
+
+            // fallback decimal with at most 2 decimals
+            return String(Math.round(num * 100) / 100).replace(".", ",");
+        };
+
+        // Identify separators that indicate a range
+        const separators = ["-", " tot ", " à ", " a ", "–"];
+
+        let sepUsed = null;
+        let parts = [originalText];
+
+        for (const sep of separators) {
+            if (originalText.includes(sep)) {
+                sepUsed = sep;
+                parts = originalText.split(sep);
+                break;
+            }
+        }
+
+        // Single number
+        if (!sepUsed) {
+            const value = parseNumber(originalText);
+            if (value == null) return originalText;
+            return formatNumber(value * multiplier);
+        }
+
+        // Two-number range
+        const firstVal = parseNumber(parts[0]);
+        const secondVal = parseNumber(parts[1]);
+
+        if (firstVal == null || secondVal == null) {
+            return originalText;
+        }
+
+        const scaled1 = formatNumber(firstVal * multiplier);
+        const scaled2 = formatNumber(secondVal * multiplier);
+
+        return `${scaled1}${sepUsed}${scaled2}`;
     }
 
     findBestMatchingRecipe(query) {
