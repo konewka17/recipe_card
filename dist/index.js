@@ -5806,7 +5806,7 @@ class RecipeCard extends HTMLElement {
                 ${this.recipe?.persons ? `
                     <div class="persons-control">
                         <button class="persons-minus">-</button>
-                        <span class="persons-count-label">
+                        <span class="persons-count-wrapper">
                             <span class="persons-count">${this._currentPersons}</span>
                             <span class="persons-label">personen</span>
                         </span>
@@ -5858,8 +5858,8 @@ class RecipeCard extends HTMLElement {
         });
 
         this._elements.personsCount = this._elements.content.querySelector(".persons-count");
-        this._elements.personsCountLabel = this._elements.content.querySelector(".persons-count-label");
-        this._elements.personsPlus.addEventListener("click", () => {
+        this._elements.personsCountWrapper = this._elements.content.querySelector(".persons-count-wrapper");
+        this._elements.personsCountWrapper.addEventListener("click", () => {
             this._currentPersons = this._basePersons;
             this._elements.personsCount.textContent = this._currentPersons;
             this.updatePersonsStorageAndScale();
