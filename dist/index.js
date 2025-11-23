@@ -6063,7 +6063,11 @@ class RecipeCard extends HTMLElement {
             if (isSpecialUnit) {
                 result += fullMatch; // leave unchanged (minutes, degrees, ...)
             } else {
-                result += `<strong>${quantityPart}${unitPart}</strong>`;
+                result += `<strong><span 
+                    class="recipe-quantity"
+                    data-original="${quantityPart.replace(/"/g, "&quot;")}"
+                    data-index="${parentIndex}"
+                >${unitPart}</strong>`;
             }
 
             lastIndex = regex.lastIndex;
