@@ -13,7 +13,7 @@ export class RecipeCard extends HTMLElement {
     _recipeIndex;
     _basePersons;
     _currentPersons;
-    _quantityRegex = /(?<!persons: )([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)(?: ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?=[^A-Za-z])/g;
+    _quantityRegex = /(?<!persons: )([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)(?: ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
 
     // lifecycle
     constructor() {
@@ -499,6 +499,7 @@ export class RecipeCard extends HTMLElement {
         while ((match = regex.exec(text)) !== null) {
             const fullMatch = match[0];
             const quantityPart = match[1];
+            console.log(match)
             const unitPart = fullMatch.replace(quantityPart, "").trim();
 
             const isSpecialUnit = /^(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))$/i.test(unitPart);
