@@ -228,10 +228,10 @@ export class RecipeCard extends HTMLElement {
             return;
         }
 
-        const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+        let recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
 
         if (recipeStorage.currentRecipe !== this.recipe.name) {
-            this.reset_recipe_storage();
+            recipeStorage = this.reset_recipe_storage();
         }
 
         this._basePersons = this.recipe?.persons || 1;
@@ -319,6 +319,7 @@ export class RecipeCard extends HTMLElement {
             currentRecipe: this.recipe.name, ingredients: {}, instructions: {}
         };
         localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+        return recipeStorage
     }
 
     updatePersonsStorageAndScale() {
