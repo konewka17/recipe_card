@@ -180,6 +180,11 @@
     transition: background 0.2s ease;
 }
 
+.scaled_quantity{
+    color: #2196f3;
+    font-style: italic;
+}
+
 /* Hover effect */
 #recipe-results li:hover {
     background: #f0f0f0;

@@ -1,5 +1,5 @@
 // import * as yaml from "https://unpkg.com/js-yaml?module"
-import {load, dump} from "js-yaml";
+import {dump, load} from "js-yaml";
 import css from "./card.css";
 import Fuse from "fuse.js";
 
@@ -339,9 +339,8 @@ export class RecipeCard extends HTMLElement {
         const orig = span.dataset.original;
         if (!orig) return;
 
-        const scaled = this.computeScaledQuantity(orig, multiplier);
-
-        span.textContent = scaled;
+        span.textContent = this.computeScaledQuantity(orig, multiplier);
+        span.parentElement.classList.toggle("scaled_quantity", multiplier !== 1);
     }
 
     printRecipe() {
@@ -589,7 +588,7 @@ export class RecipeCard extends HTMLElement {
             const fractional = num - Math.floor(num);
             const roundedFrac = Math.round(fractional * 100) / 100;
 
-            if (fracReverse[roundedFrac]) {
+            if (fracReverse[roundedFrac] && num < 10) {
                 const whole = Math.floor(num);
                 return whole > 0 ? `${whole}${fracReverse[roundedFrac]}` : fracReverse[roundedFrac];
             }
