@@ -84,8 +84,9 @@
 
 .persons-plus, .persons-minus {
     display: inline-block;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
+    --mdc-icon-size: 100%;
 }
 
 .recipe-content {
