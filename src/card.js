@@ -515,11 +515,11 @@ export class RecipeCard extends HTMLElement {
             if (isSpecialUnit) {
                 result += fullMatch; // leave unchanged (minutes, degrees, ...)
             } else {
-                result += `<strong><span 
+                result += `<span><span 
                     class="recipe-quantity"
                     data-original="${quantityPart.replace(/"/g, "&quot;")}"
                     data-index="${parentIndex}"
-                >${quantityPart}</span>${unitPart}</strong>`;
+                >${quantityPart}</span>${unitPart}</span>`;
             }
 
             lastIndex = regex.lastIndex;

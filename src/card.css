@@ -183,6 +183,7 @@
 .scaled_quantity{
     color: #2196f3;
     font-style: italic;
+    font-weight: bold;
 }
 
 /* Hover effect */
