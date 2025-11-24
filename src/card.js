@@ -245,18 +245,18 @@ export class RecipeCard extends HTMLElement {
                     <div class="edit-icon"><ha-icon icon="mdi:pencil"></ha-icon></div>
                 </div>
             </div>
-            <div class="recipe-content">
+            <div class="recipe-banner">
                 <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
                 <div class="print-icon"><ha-icon icon="mdi:printer"></ha-icon></div>
                 ${this.recipe?.persons ? `
                     <div class="persons-control">
-                        <button class="persons-minus">-</button>
-                        <span class="persons-count-wrapper">
-                            <span class="persons-count">${this._currentPersons}</span>
-                            <span class="persons-label">personen</span>
-                        </span>
-                        <button class="persons-plus">+</button>
+                        <span>Aantal personen</span>
+                        <div class="persons-minus"><ha-icon icon="mdi:minus-thick"></ha-icon></div>
+                        <span class="persons-count">${this._currentPersons}</span>
+                        <div class="persons-plus"><ha-icon icon="mdi:plus-thick"></ha-icon></div>
                     </div>` : ""}
+            </div> 
+            <div class="recipe-content">
                 <i>Ingrediënten</i>
                 <ul class="ingredient-list">
                     ${this.recipe.ingredients.map((item, index) => this.yamlEntryToLi(item, `${index}`)).join("")}
@@ -303,8 +303,7 @@ export class RecipeCard extends HTMLElement {
         });
 
         this._elements.personsCount = this._elements.content.querySelector(".persons-count");
-        this._elements.personsCountWrapper = this._elements.content.querySelector(".persons-count-wrapper");
-        this._elements.personsCountWrapper.addEventListener("click", () => {
+        this._elements.personsCount.addEventListener("click", () => {
             this._currentPersons = this._basePersons;
             this._elements.personsCount.textContent = this._currentPersons;
             this.updatePersonsStorageAndScale();
@@ -317,7 +316,7 @@ export class RecipeCard extends HTMLElement {
 
     reset_recipe_storage() {
         let recipeStorage = {
-            currentRecipe: this.recipe.name, ingredients: {}, instructions: {}, persons: this._basePersons
+            currentRecipe: this.recipe.name, ingredients: {}, instructions: {}
         };
         localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
     }

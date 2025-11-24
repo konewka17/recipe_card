@@ -25,6 +25,8 @@
 .print-container .reset-strikeout-icon,
 .print-container .print-icon,
 .print-container .search-container,
+.print-container .persons-minus,
+.print-container .persons-plus,
 .print-container #recipe-results {
     display: none !important;
 }
@@ -57,16 +59,32 @@
     margin-bottom: 10px;
     border-bottom: black 1px solid;
     padding-bottom: 2px;
-    font-family: Cambria;
+    font-family: Cambria serif;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+.recipe-banner {
+    font-family: Calibri sans-serif;
+}
+
+.recipe-banner .persons-control {
+    padding: 4px;
+    display: inline-block;
+    background-color: #ccc;
+    border-radius: 8px;
+}
+
+.recipe-banner .persons-control .persons-count {
+    font-weight: bold;
+    padding: 0 4px;
+}
+
 .recipe-content {
     margin-left: 20px;
     position: relative;
-    font-family: Calibri;
+    font-family: Calibri sans-serif;
 }
 
 .ingredient-list, .instruction-list {
@@ -172,7 +190,7 @@
 }
 
 /* Edit icon */
-.add-icon, .edit-icon, .reset-strikeout-icon, .print-icon {
+.add-icon, .edit-icon, .reset-strikeout-icon, .print-icon, .persons-minus, .persons-plus {
     cursor: pointer;
     font-size: 20px;
     color: #666;
@@ -180,7 +198,7 @@
     padding: 3px;
 }
 
-.add-icon:hover, .edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover {
+.add-icon:hover, .edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover, .persons-minus:hover, .persons-plus:hover {
     color: #333;
     background-color: #ddd;
     border-radius: 100%;
