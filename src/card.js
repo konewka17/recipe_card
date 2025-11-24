@@ -506,7 +506,6 @@ export class RecipeCard extends HTMLElement {
         let match;
 
         while ((match = regex.exec(text)) !== null) {
-            console.log(match)
             const fullMatch = match[0];
             const quantityPart = match[1];
             const unitPart = match[2]
