@@ -20,9 +20,10 @@ class RecipeCard extends HTMLElement {
             throw new Error("Please define a url in config!");
         }
         this.buildCard();
-        this.fetchRecipes();
-        this.fillSelect();
-        this.fillContent();
+        this.fetchRecipes().then(() => {
+            this.fillSelect();
+            this.fillContent();
+        })
     }
 
     set hass(hass) {
