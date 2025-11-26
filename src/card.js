@@ -480,8 +480,7 @@ function markQuantitiesInText(text) {
         result += text.slice(lastIndex, match.index);
 
         if (match.groups.skippableUnit !== undefined) {
-            result += match.input; // leave unchanged (minutes, degrees, ...)
-            console.log(`Skipped ${match.input}`)
+            result += match[0]; // leave unchanged (minutes, degrees, ...)
         } else {
             result += `<span>`
             result += `<span class="recipe-quantity" data-original="${match.groups.num}">${match.groups.num}</span>`
@@ -489,7 +488,6 @@ function markQuantitiesInText(text) {
                 result += `${match.groups.sep}<span class="recipe-quantity" data-original="${match.groups.num2}">${match.groups.num2}</span>`
             }
             result += `${match.groups.unit}</span>`;
-            console.log(`Marked ${match.input}`)
         }
 
         lastIndex = quantityRegex.lastIndex;
