@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "module": "dist/index.js",
+  "module": "dist/card.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w"

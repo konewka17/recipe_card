@@ -3,7 +3,7 @@ import {dump, load} from "js-yaml";
 import css from "./card.css";
 import Fuse from "fuse.js";
 
-export class RecipeCard extends HTMLElement {
+class RecipeCard extends HTMLElement {
 
     // private properties
     _config;
@@ -642,3 +642,5 @@ export class RecipeCard extends HTMLElement {
         return results.length ? results[0].refIndex : null;
     }
 }
+
+customElements.define("recipe-card", RecipeCard);

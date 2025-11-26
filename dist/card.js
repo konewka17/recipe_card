@@ -6199,4 +6199,4 @@ class RecipeCard extends HTMLElement {
 }
 
 customElements.define("recipe-card", RecipeCard);
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=card.js.map
