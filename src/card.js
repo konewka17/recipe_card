@@ -198,7 +198,7 @@ class RecipeCard extends HTMLElement {
 
     fillContent() {
         if (!this._recipeIndex){
-            this._recipeIndex = findBestMatchingRecipe(this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
+            this._recipeIndex = findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
         }
         this.recipe = this._parsedRecipes[this._recipeIndex];
         if (!this.recipe) {
@@ -590,8 +590,8 @@ function computeScaledQuantity(originalText, multiplier) {
     return `${scaled1}${sepUsed}${scaled2}`;
 }
 
-function findBestMatchingRecipe(query) {
-    const fuse = new Fuse(this._parsedRecipes, {
+function findBestMatchingRecipe(recipes, query) {
+    const fuse = new Fuse(recipes, {
         "keys": ["name", "alternative_name"], "threshold": .6, "includeScore": true, distance: 3,
         ignoreLocation: true
     });
