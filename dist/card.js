@@ -5873,7 +5873,7 @@ class RecipeCard extends HTMLElement {
         const orig = span.dataset.original;
         if (!orig) return;
 
-        span.textContent = computeScaledQuantity(orig, multiplier);
+        span.textContent = formatNumber(parseNumber(orig) * multiplier);
         span.parentElement.classList.toggle("scaled_quantity", multiplier !== 1);
     }
 
@@ -6023,7 +6023,7 @@ function yamlEntryToLi(yamlEntry, parentIndex = "") {
     }
 }
 
-function markQuantitiesInText(text, parentIndex) {
+function markQuantitiesInText(text) {
     if (!text) return text;
 
     let result = "";
@@ -6036,6 +6036,7 @@ function markQuantitiesInText(text, parentIndex) {
 
         if (match.groups.skippableUnit !== undefined) {
             result += match.input; // leave unchanged (minutes, degrees, ...)
+            console.log(`Skipped ${match.input}`);
         } else {
             result += `<span>`;
             result += `<span class="recipe-quantity" data-original="${match.groups.num}">${match.groups.num}</span>`;
@@ -6043,6 +6044,7 @@ function markQuantitiesInText(text, parentIndex) {
                 result += `${match.groups.sep}<span class="recipe-quantity" data-original="${match.groups.num2}">${match.groups.num2}</span>`;
             }
             result += `${match.groups.unit}</span>`;
+            console.log(`Marked ${match.input}`);
         }
 
         lastIndex = quantityRegex.lastIndex;
@@ -6103,43 +6105,6 @@ function formatNumber(num) {
 
     // fallback decimal with at most 2 decimals
     return String(Math.round(num * 100) / 100).replace(".", ",");
-}
-
-function computeScaledQuantity(originalText, multiplier) {
-    if (!originalText) return originalText;
-
-    const separators = ["-", " tot ", " à ", " a ", "–"];
-
-    let sepUsed = null;
-    let parts = [originalText];
-
-    for (const sep of separators) {
-        if (originalText.includes(sep)) {
-            sepUsed = sep;
-            parts = originalText.split(sep);
-            break;
-        }
-    }
-
-    // Single number
-    if (!sepUsed) {
-        const value = parseNumber(originalText);
-        if (value == null) return originalText;
-        return formatNumber(value * multiplier);
-    }
-
-    // Two-number range
-    const firstVal = parseNumber(parts[0]);
-    const secondVal = parseNumber(parts[1]);
-
-    if (firstVal == null || secondVal == null) {
-        return originalText;
-    }
-
-    const scaled1 = formatNumber(firstVal * multiplier);
-    const scaled2 = formatNumber(secondVal * multiplier);
-
-    return `${scaled1}${sepUsed}${scaled2}`;
 }
 
 function findBestMatchingRecipe(recipes, query) {
