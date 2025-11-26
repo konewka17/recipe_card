@@ -6035,7 +6035,7 @@ function markQuantitiesInText(text) {
         result += text.slice(lastIndex, match.index);
 
         if (match.groups.skippableUnit !== undefined) {
-            result += match[0]; // leave unchanged (minutes, degrees, ...)
+            result += match[0]; // leave unchanged (minutes, degrees, etc.)
         } else {
             result += `<span>`;
             result += `<span class="recipe-quantity" data-original="${match.groups.num}">${match.groups.num}</span>`;
