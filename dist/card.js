@@ -5558,7 +5558,7 @@ Fuse.config = Config;
 
 // import * as yaml from "https://unpkg.com/js-yaml?module"
 
-let quantityRegex = /([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)( ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
+let quantityRegex = /(?<num>[0-9¼½¾]+)(?:(?<sep>\s*(?:[.,\-–\/]|(?:tot|à|a))\s*)(?<num2>[0-9¼½¾]+))?(?<unit> ?(?:(?<skippableUnit>min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
 
 class RecipeCard extends HTMLElement {
     _config;
@@ -6012,13 +6012,13 @@ function yamlEntryToLi(yamlEntry, parentIndex = "") {
             nestedContent = `<ul>` + value.map((item, index) => yamlEntryToLi(item, `${parentIndex}-${index}`))
                                           .join("") + `</ul>`;
         } else {
-            const text = value ? markQuantitiesInText(String(value), parentIndex) : "";
+            const text = value ? markQuantitiesInText(String(value)) : "";
             nestedContent = text ? `: ${text}` : "";
         }
 
         return `<li data-index="${parentIndex}"><span class="ingredient">${key}</span><span class="amount">${nestedContent}</span></li>`;
     } else {
-        const processed = markQuantitiesInText(String(yamlEntry), parentIndex);
+        const processed = markQuantitiesInText(String(yamlEntry));
         return `<li data-index="${parentIndex}">${processed}</li>`;
     }
 }
@@ -6032,21 +6032,17 @@ function markQuantitiesInText(text, parentIndex) {
     quantityRegex.lastIndex = 0;
 
     while ((match = quantityRegex.exec(text)) !== null) {
-        const fullMatch = match[0];
-        const quantityPart = match[1];
-        const unitPart = match[2];
-        const isSpecialUnit = match[3] !== undefined;
-
         result += text.slice(lastIndex, match.index);
 
-        if (isSpecialUnit) {
-            result += fullMatch; // leave unchanged (minutes, degrees, ...)
+        if (match.groups.skippableUnit !== undefined) {
+            result += match.input; // leave unchanged (minutes, degrees, ...)
         } else {
-            result += `<span><span 
-                    class="recipe-quantity"
-                    data-original="${quantityPart.replace(/"/g, "&quot;")}"
-                    data-index="${parentIndex}"
-                >${quantityPart}</span>${unitPart}</span>`;
+            result += `<span>`;
+            result += `<span class="recipe-quantity" data-original="${match.groups.num}">${match.groups.num}</span>`;
+            if (match.groups.num2 !== undefined) {
+                result += `${match.groups.sep}<span class="recipe-quantity" data-original="${match.groups.num2}">${match.groups.num2}</span>`;
+            }
+            result += `${match.groups.unit}</span>`;
         }
 
         lastIndex = quantityRegex.lastIndex;
