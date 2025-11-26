@@ -3,9 +3,9 @@ import {dump, load} from "js-yaml";
 import css from "./card.css";
 import Fuse from "fuse.js";
 
-class RecipeCard extends HTMLElement {
+let quantityRegex = /([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)( ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
 
-    // private properties
+class RecipeCard extends HTMLElement {
     _config;
     _hass;
     _elements = {};
@@ -13,75 +13,50 @@ class RecipeCard extends HTMLElement {
     _recipeIndex;
     _basePersons;
     _currentPersons;
-    _quantityRegex = /([0-9¼½¾]+(?:\s*(?:[.,\-–\/]|(?:tot|à|a))\s*[0-9¼½¾]+)*)( ?(?:(min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
-
-    // lifecycle
-    constructor() {
-        super();
-        this.yamlEntryToLi = this.yamlEntryToLi.bind(this);
-    }
 
     setConfig(config) {
         this._config = config;
-        this.doCard();
-        this.doStyle();
-        this.doAttach();
-        this.doQueryElements();
-        this.doCheckConfig();
-        this.doFetchRecipes();
+        if (!this._config.url) {
+            throw new Error("Please define a url in config!");
+        }
+        this.buildCard();
+        this.fetchRecipes();
+        this.fillSelect();
+        this.fillContent();
     }
 
     set hass(hass) {
         this._hass = hass;
     }
 
-    // jobs
-    doCheckConfig() {
-        if (!this._config.url) {
-            throw new Error("Please define a url in config!");
-        }
+    buildCard() {
+        // Make card
+        const card = document.createElement("ha-card");
+        card.innerHTML = "<div class='selectdiv'></div><div class='content'></div>";
+        this._elements.selectdiv = card.querySelector(".selectdiv");
+        this._elements.content = card.querySelector(".content");
+
+        // Make style
+        const style = document.createElement("style");
+        style.textContent = css;
+
+        // Attach to shadow root
+        this.attachShadow({mode: "open"});
+        this.shadowRoot.append(style, card);
     }
 
-    async doFetchRecipes() {
+    async fetchRecipes() {
         try {
             const urlWithTimestamp = `${this._config.url}?_=${new Date().getTime()}`;
             const response = await fetch(urlWithTimestamp);
             const yamlText = await response.text();
-
             this._parsedRecipes = load(yamlText);
-            this._recipeIndex = this.findBestMatchingRecipe(this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
-            this.doFillCard();
         } catch (error) {
             throw new Error(`Error fetching or parsing the recipe file: ${error}`);
         }
     }
 
-    doCard() {
-        this._elements.card = document.createElement("ha-card");
-        this._elements.card.innerHTML = `
-            <div class="selectdiv"></div>
-            <div class="content"></div>
-        `;
-    }
-
-    doStyle() {
-        this._elements.style = document.createElement("style");
-        this._elements.style.textContent = css;
-    }
-
-    doAttach() {
-        this.attachShadow({mode: "open"});
-        this.shadowRoot.append(this._elements.style, this._elements.card);
-    }
-
-    doQueryElements() {
-        const card = this._elements.card;
-        this._elements.selectdiv = card.querySelector(".selectdiv");
-        this._elements.content = card.querySelector(".content");
-    }
-
-
-    doFillSelect() {
+    fillSelect() {
         this._elements.selectdiv.innerHTML = `
             <div class="search-container">
                 <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
@@ -204,7 +179,7 @@ class RecipeCard extends HTMLElement {
                 this._recipeIndex = li.getAttribute("data-index");
                 this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
                 this.clearSearchResults();
-                this.doFillContent(); // Load the selected recipe
+                this.fillContent(); // Load the selected recipe
             });
         });
     }
@@ -221,7 +196,10 @@ class RecipeCard extends HTMLElement {
         this._elements.selectdiv.querySelector("#recipe-results").style.display = "none";
     }
 
-    doFillContent() {
+    fillContent() {
+        if (!this._recipeIndex){
+            this._recipeIndex = findBestMatchingRecipe(this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
+        }
         this.recipe = this._parsedRecipes[this._recipeIndex];
         if (!this.recipe) {
             this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
@@ -259,12 +237,12 @@ class RecipeCard extends HTMLElement {
             <div class="recipe-content">
                 <i>Ingrediënten</i>
                 <ul class="ingredient-list">
-                    ${this.recipe.ingredients.map((item, index) => this.yamlEntryToLi(item, `${index}`)).join("")}
+                    ${this.recipe.ingredients.map((item, index) => yamlEntryToLi(item, `${index}`)).join("")}
                 </ul>
                 <br/> 
                 <i>Bereiding:</i>
                 <ol class="instruction-list">
-                    ${this.recipe.instructions.map((step, index) => this.yamlEntryToLi(step, `${index}`)).join("")}
+                    ${this.recipe.instructions.map((step, index) => yamlEntryToLi(step, `${index}`)).join("")}
                 </ol>
             </div>
         `;
@@ -278,7 +256,7 @@ class RecipeCard extends HTMLElement {
         this._elements.resetStrikeoutButton = this._elements.content.querySelector(".reset-strikeout-icon");
         this._elements.resetStrikeoutButton.addEventListener("click", () => {
             this.reset_recipe_storage();
-            this.doFillContent();
+            this.fillContent();
         });
 
         this._elements.printButton = this._elements.content.querySelector(".print-icon");
@@ -319,7 +297,7 @@ class RecipeCard extends HTMLElement {
             currentRecipe: this.recipe.name, ingredients: {}, instructions: {}
         };
         localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
-        return recipeStorage
+        return recipeStorage;
     }
 
     updatePersonsStorageAndScale() {
@@ -339,7 +317,7 @@ class RecipeCard extends HTMLElement {
         const orig = span.dataset.original;
         if (!orig) return;
 
-        span.textContent = this.computeScaledQuantity(orig, multiplier);
+        span.textContent = computeScaledQuantity(orig, multiplier);
         span.parentElement.classList.toggle("scaled_quantity", multiplier !== 1);
     }
 
@@ -361,14 +339,9 @@ class RecipeCard extends HTMLElement {
         printWindow.document.close();
     }
 
-    doFillCard() {
-        this.doFillSelect();
-        this.doFillContent();
-    }
-
     toggleEditMode() {
         if (this._isEditing) {
-            this.doFillContent();
+            this.fillContent();
             this._isEditing = false;
             return;
         }
@@ -409,7 +382,7 @@ class RecipeCard extends HTMLElement {
             this._elements.saveButton.disabled = false;
             this._elements.cancelButton.disabled = false;
             this._isEditing = false;
-            this.doFetchRecipes();
+            this.fetchRecipes();
         } catch (error) {
             this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:alert-circle-outline"></ha-icon>`;
             setTimeout(() => {
@@ -433,11 +406,11 @@ class RecipeCard extends HTMLElement {
             await this._hass.callService("recipes", "create_recipe", {
                 recipe_name: recipeName
             });
-            await this.doFetchRecipes();
+            await this.fetchRecipes();
             const newIndex = this._parsedRecipes.findIndex(recipe => recipe.name === recipeName);
             if (newIndex !== -1) {
                 this._recipeIndex = newIndex;
-                this.doFillContent();
+                this.fillContent();
             }
         } catch (error) {
             alert("Fout bij het aanmaken van het recept: " + error.message);
@@ -467,180 +440,164 @@ class RecipeCard extends HTMLElement {
             });
         });
     }
+}
 
+// helpers
+function yamlEntryToLi(yamlEntry, parentIndex = "") {
+    if (Array.isArray(yamlEntry)) {
+        return `<ul>` + yamlEntry.map((item, index) => yamlEntryToLi(item, `${parentIndex}-${index}`))
+                                 .join("") + `</ul>`;
+    } else if (typeof yamlEntry === "object") {
+        let [key, value] = Object.entries(yamlEntry)[0];
+        key = key.charAt(0).toUpperCase() + key.slice(1);
+        let nestedContent = "";
 
-    // helpers
-    yamlEntryToLi(yamlEntry, parentIndex = "") {
-        if (Array.isArray(yamlEntry)) {
-            return `<ul>` + yamlEntry.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}-${index}`))
-                                     .join("") + `</ul>`;
-        } else if (typeof yamlEntry === "object") {
-            let [key, value] = Object.entries(yamlEntry)[0];
-            key = key.charAt(0).toUpperCase() + key.slice(1);
-            let nestedContent = "";
-
-            if (Array.isArray(value)) {
-                nestedContent = `<ul>` + value.map((item, index) => this.yamlEntryToLi(item, `${parentIndex}-${index}`))
-                                              .join("") + `</ul>`;
-            } else {
-                const text = value ? this.markQuantitiesInText(String(value), parentIndex) : "";
-                nestedContent = text ? `: ${text}` : "";
-            }
-
-            return `<li data-index="${parentIndex}"><span class="ingredient">${key}</span><span class="amount">${nestedContent}</span></li>`;
+        if (Array.isArray(value)) {
+            nestedContent = `<ul>` + value.map((item, index) => yamlEntryToLi(item, `${parentIndex}-${index}`))
+                                          .join("") + `</ul>`;
         } else {
-            const processed = this.markQuantitiesInText(String(yamlEntry), parentIndex);
-            return `<li data-index="${parentIndex}">${processed}</li>`;
+            const text = value ? markQuantitiesInText(String(value), parentIndex) : "";
+            nestedContent = text ? `: ${text}` : "";
         }
+
+        return `<li data-index="${parentIndex}"><span class="ingredient">${key}</span><span class="amount">${nestedContent}</span></li>`;
+    } else {
+        const processed = markQuantitiesInText(String(yamlEntry), parentIndex);
+        return `<li data-index="${parentIndex}">${processed}</li>`;
     }
+}
 
-    markQuantitiesInText(text, parentIndex) {
-        if (!text) return text;
+function markQuantitiesInText(text, parentIndex) {
+    if (!text) return text;
 
-        const regex = this._quantityRegex;
-        regex.lastIndex = 0;
+    let result = "";
+    let lastIndex = 0;
+    let match;
+    quantityRegex.lastIndex = 0;
 
-        let result = "";
-        let lastIndex = 0;
-        let match;
+    while ((match = quantityRegex.exec(text)) !== null) {
+        const fullMatch = match[0];
+        const quantityPart = match[1];
+        const unitPart = match[2];
+        const isSpecialUnit = match[3] !== undefined;
 
-        while ((match = regex.exec(text)) !== null) {
-            const fullMatch = match[0];
-            const quantityPart = match[1];
-            const unitPart = match[2]
-            const isSpecialUnit = match[3] !== undefined
+        result += text.slice(lastIndex, match.index);
 
-            result += text.slice(lastIndex, match.index);
-
-            if (isSpecialUnit) {
-                result += fullMatch; // leave unchanged (minutes, degrees, ...)
-            } else {
-                result += `<span><span 
+        if (isSpecialUnit) {
+            result += fullMatch; // leave unchanged (minutes, degrees, ...)
+        } else {
+            result += `<span><span 
                     class="recipe-quantity"
                     data-original="${quantityPart.replace(/"/g, "&quot;")}"
                     data-index="${parentIndex}"
                 >${quantityPart}</span>${unitPart}</span>`;
-            }
-
-            lastIndex = regex.lastIndex;
         }
 
-        result += text.slice(lastIndex);
-        return result;
+        lastIndex = quantityRegex.lastIndex;
     }
 
-    computeScaledQuantity(originalText, multiplier) {
-        if (!originalText) return originalText;
+    result += text.slice(lastIndex);
+    return result;
+}
 
-        // Fraction-char map
-        const fracMap = {
-            "¼": 0.25,
-            "½": 0.5,
-            "¾": 0.75
-        };
+function parseNumber(str) {
+    const fracMap = {"¼": 0.25, "½": 0.5, "¾": 0.75};
+    str = str.trim();
 
-        // Reverse map for pretty-printing
-        const fracReverse = {
-            0.25: "¼",
-            0.5: "½",
-            0.75: "¾"
-        };
-
-        // Convert fraction characters into numbers
-        const parseNumber = (str) => {
-            str = str.trim();
-
-            // If pure fraction char
-            if (fracMap[str] != null) {
-                return fracMap[str];
-            }
-
-            // If fraction appended to a number (e.g. "1½")
-            const lastChar = str.slice(-1);
-            if (fracMap[lastChar] != null) {
-                const base = parseFloat(str.slice(0, -1)) || 0;
-                return base + fracMap[lastChar];
-            }
-
-            // If "1/2" or "3/4"
-            if (str.includes("/")) {
-                const [a, b] = str.split("/").map(Number);
-                if (!isNaN(a) && !isNaN(b) && b !== 0) {
-                    return a / b;
-                }
-            }
-
-            // Normal decimal or integer
-            const num = parseFloat(str.replace(",", "."));
-            return isNaN(num) ? null : num;
-        };
-
-        // Convert a number back into a readable pretty fraction or decimal
-        const formatNumber = (num) => {
-            if (num == null || isNaN(num)) return "";
-
-            // Check for whole number
-            if (Math.abs(num - Math.round(num)) < 0.01) {
-                return String(Math.round(num));
-            }
-
-            // Try to match fractions
-            const fractional = num - Math.floor(num);
-            const roundedFrac = Math.round(fractional * 100) / 100;
-
-            if (fracReverse[roundedFrac] && num < 10) {
-                const whole = Math.floor(num);
-                return whole > 0 ? `${whole}${fracReverse[roundedFrac]}` : fracReverse[roundedFrac];
-            }
-
-            // fallback decimal with at most 2 decimals
-            return String(Math.round(num * 100) / 100).replace(".", ",");
-        };
-
-        // Identify separators that indicate a range
-        const separators = ["-", " tot ", " à ", " a ", "–"];
-
-        let sepUsed = null;
-        let parts = [originalText];
-
-        for (const sep of separators) {
-            if (originalText.includes(sep)) {
-                sepUsed = sep;
-                parts = originalText.split(sep);
-                break;
-            }
-        }
-
-        // Single number
-        if (!sepUsed) {
-            const value = parseNumber(originalText);
-            if (value == null) return originalText;
-            return formatNumber(value * multiplier);
-        }
-
-        // Two-number range
-        const firstVal = parseNumber(parts[0]);
-        const secondVal = parseNumber(parts[1]);
-
-        if (firstVal == null || secondVal == null) {
-            return originalText;
-        }
-
-        const scaled1 = formatNumber(firstVal * multiplier);
-        const scaled2 = formatNumber(secondVal * multiplier);
-
-        return `${scaled1}${sepUsed}${scaled2}`;
+    // If pure fraction char
+    if (fracMap[str] != null) {
+        return fracMap[str];
     }
 
-    findBestMatchingRecipe(query) {
-        const fuse = new Fuse(this._parsedRecipes, {
-            "keys": ["name", "alternative_name"], "threshold": .6, "includeScore": true, distance: 3,
-            ignoreLocation: true
-        });
-
-        const results = fuse.search(query);
-        return results.length ? results[0].refIndex : null;
+    // If fraction appended to a number (e.g. "1½")
+    const lastChar = str.slice(-1);
+    if (fracMap[lastChar] != null) {
+        const base = parseFloat(str.slice(0, -1)) || 0;
+        return base + fracMap[lastChar];
     }
+
+    // If "1/2" or "3/4"
+    if (str.includes("/")) {
+        const [a, b] = str.split("/").map(Number);
+        if (!isNaN(a) && !isNaN(b) && b !== 0) {
+            return a / b;
+        }
+    }
+
+    // Normal decimal or integer
+    const num = parseFloat(str.replace(",", "."));
+    return isNaN(num) ? null : num;
+}
+
+
+function formatNumber(num) {
+    // Convert a number back into a readable pretty fraction or decimal
+    const fracReverse = {0.25: "¼", 0.5: "½", 0.75: "¾"};
+    if (num == null || isNaN(num)) return "";
+
+    // Check for whole number
+    if (Math.abs(num - Math.round(num)) < 0.01) {
+        return String(Math.round(num));
+    }
+
+    // Try to match fractions
+    const fractional = num - Math.floor(num);
+    const roundedFrac = Math.round(fractional * 100) / 100;
+
+    if (fracReverse[roundedFrac] && num < 10) {
+        const whole = Math.floor(num);
+        return whole > 0 ? `${whole}${fracReverse[roundedFrac]}` : fracReverse[roundedFrac];
+    }
+
+    // fallback decimal with at most 2 decimals
+    return String(Math.round(num * 100) / 100).replace(".", ",");
+}
+
+function computeScaledQuantity(originalText, multiplier) {
+    if (!originalText) return originalText;
+
+    const separators = ["-", " tot ", " à ", " a ", "–"];
+
+    let sepUsed = null;
+    let parts = [originalText];
+
+    for (const sep of separators) {
+        if (originalText.includes(sep)) {
+            sepUsed = sep;
+            parts = originalText.split(sep);
+            break;
+        }
+    }
+
+    // Single number
+    if (!sepUsed) {
+        const value = parseNumber(originalText);
+        if (value == null) return originalText;
+        return formatNumber(value * multiplier);
+    }
+
+    // Two-number range
+    const firstVal = parseNumber(parts[0]);
+    const secondVal = parseNumber(parts[1]);
+
+    if (firstVal == null || secondVal == null) {
+        return originalText;
+    }
+
+    const scaled1 = formatNumber(firstVal * multiplier);
+    const scaled2 = formatNumber(secondVal * multiplier);
+
+    return `${scaled1}${sepUsed}${scaled2}`;
+}
+
+function findBestMatchingRecipe(query) {
+    const fuse = new Fuse(this._parsedRecipes, {
+        "keys": ["name", "alternative_name"], "threshold": .6, "includeScore": true, distance: 3,
+        ignoreLocation: true
+    });
+
+    const results = fuse.search(query);
+    return results.length ? results[0].refIndex : null;
 }
 
 customElements.define("recipe-card", RecipeCard);
