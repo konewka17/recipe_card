@@ -10,7 +10,7 @@ class RecipeCard extends HTMLElement {
     _elements = {};
     _parsedRecipes;
     _recipeIndex;
-    _selectedSearchIndex;
+    _selectedSearchIndex = -1;
     _basePersons;
     _currentPersons;
 
@@ -66,59 +66,15 @@ class RecipeCard extends HTMLElement {
     }
 
     addListenersToSelect() {
-        const selectDiv = this._elements.selectdiv;
         const searchInput = this._elements.searchInput;
+        const clearIcon = this._elements.selectdiv.querySelector("#clear-search");
 
-        this._selectedSearchIndex = -1;
-
-        searchInput.addEventListener("input", () => {
-            this._selectedSearchIndex = -1;
-            this.updateSearchResults(searchInput.value, this._elements.resultsList);
-        });
-
-        searchInput.addEventListener("focus", () => this.updateSearchResults(searchInput.value, this._elements.resultsList));
-
-        searchInput.addEventListener("keydown", (event) => {
-            const items = this._elements.resultsList.querySelectorAll("li");
-
-            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                event.preventDefault();
-                if (event.key === "ArrowDown") {
-                    if (this._selectedSearchIndex < items.length - 1) {
-                        this._selectedSearchIndex++;
-                    }
-                } else if (event.key === "ArrowUp") {
-                    if (this._selectedSearchIndex > 0) {
-                        this._selectedSearchIndex--;
-                    }
-                }
-
-                items.forEach(item => item.classList.remove("selected"));
-                items[index].classList.add("selected");
-                items[index].scrollIntoView({block: "nearest"});
-            } else if (event.key === "Enter") {
-                event.preventDefault();
-                if (this._selectedSearchIndex >= 0 && items[this._selectedSearchIndex]) {
-                    items[this._selectedSearchIndex].click();
-                }
-            } else if (event.key === "Escape") {
-                this.clearSearchResults();
-                searchInput.blur();
-            }
-        });
-
-        searchInput.addEventListener("focusout", () => {
-            setTimeout(() => {
-                if (!selectDiv.contains(document.activeElement)) {
-                    this.clearSearchResults();
-                }
-            }, 150);
-        });
-
-        // Clear input when clicking the clear icon
-        const clearIcon = selectDiv.querySelector("#clear-search");
+        searchInput.addEventListener("input", onSearchInput.bind(this));
+        searchInput.addEventListener("focus", onSearchFocus.bind(this));
+        searchInput.addEventListener("keydown", onSearchKeydown.bind(this));
+        searchInput.addEventListener("focusout", onSearchFocusout.bind(this));
         clearIcon.addEventListener("click", () => {
-            searchInput.value = "";
+            this._elements.searchInput.value = "";
             this.clearSearchResults();
         });
     }
@@ -539,6 +495,52 @@ function findBestMatchingRecipe(recipes, query) {
 
     const results = fuse.search(query);
     return results.length ? results[0].refIndex : null;
+}
+
+function onSearchInput() {
+    this._selectedSearchIndex = -1;
+    this.updateSearchResults(this._elements.searchInput.value, this._elements.resultsList);
+}
+
+function onSearchFocus() {
+    return this.updateSearchResults(this._elements.searchInput.value, this._elements.resultsList);
+}
+
+function onSearchKeydown(event) {
+    const items = this._elements.resultsList.querySelectorAll("li");
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (event.key === "ArrowDown") {
+            if (this._selectedSearchIndex < items.length - 1) {
+                this._selectedSearchIndex++;
+            }
+        } else if (event.key === "ArrowUp") {
+            if (this._selectedSearchIndex > 0) {
+                this._selectedSearchIndex--;
+            }
+        }
+
+        items.forEach(item => item.classList.remove("selected"));
+        items[index].classList.add("selected");
+        items[index].scrollIntoView({block: "nearest"});
+    } else if (event.key === "Enter") {
+        event.preventDefault();
+        if (this._selectedSearchIndex >= 0 && items[this._selectedSearchIndex]) {
+            items[this._selectedSearchIndex].click();
+        }
+    } else if (event.key === "Escape") {
+        this.clearSearchResults();
+        this._elements.searchInput.blur();
+    }
+}
+
+function onSearchFocusout() {
+    setTimeout(() => {
+        if (!this._elements.selectdiv.contains(document.activeElement)) {
+            this.clearSearchResults();
+        }
+    }, 150);
 }
 
 customElements.define("recipe-card", RecipeCard);
