@@ -20,7 +20,11 @@ class RecipeCard extends HTMLElement {
         }
         this.buildCard();
         this.fetchRecipes().then(() => {
-            this.setRecipeIndex(findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state));
+            let recipeIndex = this._recipeStorage?.currentRecipeIndex;
+            if (!recipeIndex) {
+                recipeIndex = findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
+            }
+            this.setRecipeIndex(recipeIndex);
             this.fillContent();
         });
     }
@@ -142,8 +146,7 @@ class RecipeCard extends HTMLElement {
             return;
         }
 
-        if (this._recipeStorage.currentRecipe !== this.recipe.name) {
-            console.log(`Resetting recipe storage for ${this.recipe.name} because it was changed from ${this._recipeStorage.currentRecipe}`)
+        if (this._recipeStorage.currentRecipeIndex !== this._recipeIndex) {
             this.reset_recipe_storage();
         }
 
@@ -215,7 +218,8 @@ class RecipeCard extends HTMLElement {
 
     reset_recipe_storage() {
         this._recipeStorage = {
-            currentRecipe: this.recipe.name, ingredients: {}, instructions: {}, currentPersons: this.recipe?.persons
+            currentRecipeIndex: this._recipeIndex, ingredients: {}, instructions: {},
+            currentPersons: this.recipe?.persons
         };
         this.updateLocalStorage();
     }
