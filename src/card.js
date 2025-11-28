@@ -1,8 +1,8 @@
 import {dump, load} from "js-yaml";
 import css from "./card.css";
 import Fuse from "fuse.js";
-
-let quantityRegex = /(?<num>[0-9¼½¾]+)(?:(?<sep>\s*(?:[.,\-–\/]|(?:tot|à|a))\s*)(?<num2>[0-9¼½¾]+))?(?<unit> ?(?:(?<skippableUnit>min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
+import {onClearIconClick, onSearchFocus, onSearchFocusout, onSearchInput, onSearchKeydown} from "./eventListeners.js";
+import {formatNumber, markQuantitiesInText, parseNumber} from "./numberHelpers.js";
 
 class RecipeCard extends HTMLElement {
     _config;
@@ -21,12 +21,18 @@ class RecipeCard extends HTMLElement {
         }
         this.buildCard();
         this.fetchRecipes().then(() => {
+            this.setRecipeIndex(findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state));
             this.fillContent();
-        })
+        });
     }
 
     set hass(hass) {
         this._hass = hass;
+    }
+
+    setRecipeIndex(index) {
+        this._recipeIndex = index;
+        this.recipe = this._parsedRecipes?.[this._recipeIndex] || {};
     }
 
     buildCard() {
@@ -73,10 +79,7 @@ class RecipeCard extends HTMLElement {
         searchInput.addEventListener("focus", onSearchFocus.bind(this));
         searchInput.addEventListener("keydown", onSearchKeydown.bind(this));
         searchInput.addEventListener("focusout", onSearchFocusout.bind(this));
-        clearIcon.addEventListener("click", () => {
-            this._elements.searchInput.value = "";
-            this.clearSearchResults();
-        });
+        clearIcon.addEventListener("click", onClearIconClick.bind(this));
     }
 
     updateSearchResults(query, resultsList) {
@@ -122,7 +125,7 @@ class RecipeCard extends HTMLElement {
 
         resultsList.querySelectorAll("li").forEach(li => {
             li.addEventListener("click", () => {
-                this._recipeIndex = li.getAttribute("data-index");
+                this.setRecipeIndex(li.getAttribute("data-index"));
                 this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
                 this.clearSearchResults();
                 this.fillContent();
@@ -135,10 +138,6 @@ class RecipeCard extends HTMLElement {
     }
 
     fillContent() {
-        if (!this._recipeIndex){
-            this._recipeIndex = findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
-        }
-        this.recipe = this._parsedRecipes[this._recipeIndex];
         if (!this.recipe) {
             this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
             return;
@@ -185,23 +184,14 @@ class RecipeCard extends HTMLElement {
             </div>
         `;
 
-        this._elements.editButton = this._elements.content.querySelector(".edit-icon");
-        this._elements.editButton.addEventListener("click", () => this.toggleEditMode());
-
-        this._elements.addButton = this._elements.content.querySelector(".add-icon");
-        this._elements.addButton.addEventListener("click", () => this.createNewRecipe());
-
-        this._elements.resetStrikeoutButton = this._elements.content.querySelector(".reset-strikeout-icon");
-        this._elements.resetStrikeoutButton.addEventListener("click", () => {
+        this._elements.content.querySelector(".edit-icon").addEventListener("click", () => this.toggleEditMode());
+        this._elements.content.querySelector(".add-icon").addEventListener("click", () => this.createNewRecipe());
+        this._elements.content.querySelector(".reset-strikeout-icon").addEventListener("click", () => {
             this.reset_recipe_storage();
             this.fillContent();
         });
-
-        this._elements.printButton = this._elements.content.querySelector(".print-icon");
-        this._elements.printButton.addEventListener("click", () => this.printRecipe());
-
-        this._elements.personsMinus = this._elements.content.querySelector(".persons-minus");
-        this._elements.personsMinus.addEventListener("click", () => {
+        this._elements.content.querySelector(".print-icon").addEventListener("click", () => this.printRecipe());
+        this._elements.content.querySelector(".persons-minus").addEventListener("click", () => {
             if (this._currentPersons > 1) {
                 this._currentPersons--;
                 this._elements.personsCount.textContent = this._currentPersons;
@@ -209,9 +199,7 @@ class RecipeCard extends HTMLElement {
                 this.scaleAllQuantities();
             }
         });
-
-        this._elements.personsPlus = this._elements.content.querySelector(".persons-plus");
-        this._elements.personsPlus.addEventListener("click", () => {
+        this._elements.content.querySelector(".persons-plus").addEventListener("click", () => {
             this._currentPersons++;
             this._elements.personsCount.textContent = this._currentPersons;
             this.updatePersonsStorageAndScale();
@@ -231,9 +219,7 @@ class RecipeCard extends HTMLElement {
     }
 
     reset_recipe_storage() {
-        let recipeStorage = {
-            currentRecipe: this.recipe.name, ingredients: {}, instructions: {}
-        };
+        let recipeStorage = {currentRecipe: this.recipe.name, ingredients: {}, instructions: {}};
         localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
         return recipeStorage;
     }
@@ -315,12 +301,7 @@ class RecipeCard extends HTMLElement {
                 recipe_name: this.recipe.name,
                 new_yaml: newYaml
             });
-
-            this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:content-save"></ha-icon>`;
-            this._elements.saveButton.disabled = false;
-            this._elements.cancelButton.disabled = false;
-            this._isEditing = false;
-            this.fetchRecipes();
+            this.fetchRecipes().then(() => this.toggleEditMode());
         } catch (error) {
             this._elements.saveButton.innerHTML = `<ha-icon icon="mdi:alert-circle-outline"></ha-icon>`;
             setTimeout(() => {
@@ -347,7 +328,7 @@ class RecipeCard extends HTMLElement {
             await this.fetchRecipes();
             const newIndex = this._parsedRecipes.findIndex(recipe => recipe.name === recipeName);
             if (newIndex !== -1) {
-                this._recipeIndex = newIndex;
+                this.setRecipeIndex(newIndex);
                 this.fillContent();
             }
         } catch (error) {
@@ -405,88 +386,6 @@ function yamlEntryToLi(yamlEntry, parentIndex = "") {
     }
 }
 
-function markQuantitiesInText(text) {
-    if (!text) return text;
-
-    let result = "";
-    let lastIndex = 0;
-    let match;
-    quantityRegex.lastIndex = 0;
-
-    while ((match = quantityRegex.exec(text)) !== null) {
-        result += text.slice(lastIndex, match.index);
-
-        if (match.groups.skippableUnit !== undefined) {
-            result += match[0]; // leave unchanged (minutes, degrees, etc.)
-        } else {
-            result += `<span>`
-            result += `<span class="recipe-quantity" data-original="${match.groups.num}">${match.groups.num}</span>`
-            if (match.groups.num2 !== undefined) {
-                result += `${match.groups.sep}<span class="recipe-quantity" data-original="${match.groups.num2}">${match.groups.num2}</span>`
-            }
-            result += `${match.groups.unit}</span>`;
-        }
-
-        lastIndex = quantityRegex.lastIndex;
-    }
-
-    result += text.slice(lastIndex);
-    return result;
-}
-
-function parseNumber(str) {
-    const fracMap = {"¼": 0.25, "½": 0.5, "¾": 0.75};
-    str = str.trim();
-
-    // If pure fraction char
-    if (fracMap[str] != null) {
-        return fracMap[str];
-    }
-
-    // If fraction appended to a number (e.g. "1½")
-    const lastChar = str.slice(-1);
-    if (fracMap[lastChar] != null) {
-        const base = parseFloat(str.slice(0, -1)) || 0;
-        return base + fracMap[lastChar];
-    }
-
-    // If "1/2" or "3/4"
-    if (str.includes("/")) {
-        const [a, b] = str.split("/").map(Number);
-        if (!isNaN(a) && !isNaN(b) && b !== 0) {
-            return a / b;
-        }
-    }
-
-    // Normal decimal or integer
-    const num = parseFloat(str.replace(",", "."));
-    return isNaN(num) ? null : num;
-}
-
-
-function formatNumber(num) {
-    // Convert a number back into a readable pretty fraction or decimal
-    const fracReverse = {0.25: "¼", 0.5: "½", 0.75: "¾"};
-    if (num == null || isNaN(num)) return "";
-
-    // Check for whole number
-    if (Math.abs(num - Math.round(num)) < 0.01) {
-        return String(Math.round(num));
-    }
-
-    // Try to match fractions
-    const fractional = num - Math.floor(num);
-    const roundedFrac = Math.round(fractional * 100) / 100;
-
-    if (fracReverse[roundedFrac] && num < 10) {
-        const whole = Math.floor(num);
-        return whole > 0 ? `${whole}${fracReverse[roundedFrac]}` : fracReverse[roundedFrac];
-    }
-
-    // fallback decimal with at most 2 decimals
-    return String(Math.round(num * 100) / 100).replace(".", ",");
-}
-
 function findBestMatchingRecipe(recipes, query) {
     const fuse = new Fuse(recipes, {
         "keys": ["name", "alternative_name"], "threshold": .6, "includeScore": true, distance: 3,
@@ -495,52 +394,6 @@ function findBestMatchingRecipe(recipes, query) {
 
     const results = fuse.search(query);
     return results.length ? results[0].refIndex : null;
-}
-
-function onSearchInput() {
-    this._selectedSearchIndex = -1;
-    this.updateSearchResults(this._elements.searchInput.value, this._elements.resultsList);
-}
-
-function onSearchFocus() {
-    return this.updateSearchResults(this._elements.searchInput.value, this._elements.resultsList);
-}
-
-function onSearchKeydown(event) {
-    const items = this._elements.resultsList.querySelectorAll("li");
-
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-        event.preventDefault();
-        if (event.key === "ArrowDown") {
-            if (this._selectedSearchIndex < items.length - 1) {
-                this._selectedSearchIndex++;
-            }
-        } else if (event.key === "ArrowUp") {
-            if (this._selectedSearchIndex > 0) {
-                this._selectedSearchIndex--;
-            }
-        }
-
-        items.forEach(item => item.classList.remove("selected"));
-        items[this._selectedSearchIndex].classList.add("selected");
-        items[this._selectedSearchIndex].scrollIntoView({block: "nearest"});
-    } else if (event.key === "Enter") {
-        event.preventDefault();
-        if (this._selectedSearchIndex >= 0 && items[this._selectedSearchIndex]) {
-            items[this._selectedSearchIndex].click();
-        }
-    } else if (event.key === "Escape") {
-        this.clearSearchResults();
-        this._elements.searchInput.blur();
-    }
-}
-
-function onSearchFocusout() {
-    setTimeout(() => {
-        if (!this._elements.selectdiv.contains(document.activeElement)) {
-            this.clearSearchResults();
-        }
-    }, 150);
 }
 
 customElements.define("recipe-card", RecipeCard);
