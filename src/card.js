@@ -11,7 +11,7 @@ class RecipeCard extends HTMLElement {
     _parsedRecipes;
     _recipeIndex;
     _selectedSearchIndex = -1;
-    _recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+    _recipeStorage = {};
 
     setConfig(config) {
         this._config = config;
@@ -19,6 +19,10 @@ class RecipeCard extends HTMLElement {
             throw new Error("Please define a url in config!");
         }
         this.buildCard();
+        this._recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+        if (this._recipeStorage.lastUpdatedTs < Date.now() - 60 * 60 * 1000) {
+            this._recipeStorage = {}
+        }
         this.fetchRecipes().then(() => {
             let recipeIndex = this._recipeStorage?.currentRecipeIndex;
             if (!recipeIndex) {
@@ -215,12 +219,13 @@ class RecipeCard extends HTMLElement {
     reset_recipe_storage() {
         this._recipeStorage = {
             currentRecipeIndex: this._recipeIndex, ingredients: {}, instructions: {},
-            currentPersons: this.recipe?.persons
+            currentPersons: this.recipe?.persons, lastUpdatedTs: Date.now()
         };
         this.updateLocalStorage();
     }
 
     updateLocalStorage() {
+        this._recipeStorage.lastUpdatedTs = Date.now();
         localStorage.setItem("recipeStorage", JSON.stringify(this._recipeStorage));
     }
 
