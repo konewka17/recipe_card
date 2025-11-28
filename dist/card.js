@@ -5556,8 +5556,6 @@ Fuse.config = Config;
   register(ExtendedSearch);
 }
 
-// import * as yaml from "https://unpkg.com/js-yaml?module"
-
 let quantityRegex = /(?<num>[0-9¼½¾]+)(?:(?<sep>\s*(?:[.,\-–\/]|(?:tot|à|a))\s*)(?<num2>[0-9¼½¾]+))?(?<unit> ?(?:(?<skippableUnit>min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
 
 class RecipeCard extends HTMLElement {
@@ -5566,6 +5564,7 @@ class RecipeCard extends HTMLElement {
     _elements = {};
     _parsedRecipes;
     _recipeIndex;
+    _selectedSearchIndex;
     _basePersons;
     _currentPersons;
 
@@ -5576,7 +5575,6 @@ class RecipeCard extends HTMLElement {
         }
         this.buildCard();
         this.fetchRecipes().then(() => {
-            this.fillSelect();
             this.fillContent();
         });
     }
@@ -5589,14 +5587,23 @@ class RecipeCard extends HTMLElement {
         // Make card
         const card = document.createElement("ha-card");
         card.innerHTML = "<div class='selectdiv'></div><div class='content'></div>";
-        this._elements.selectdiv = card.querySelector(".selectdiv");
         this._elements.content = card.querySelector(".content");
 
-        // Make style
+        this._elements.selectdiv = card.querySelector(".selectdiv");
+        this._elements.selectdiv.innerHTML = `
+            <div class="search-container">
+                <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
+                <ha-icon id="clear-search" icon="mdi:close-circle"></ha-icon>
+            </div>
+            <ul id="recipe-results" class="search-results"></ul>
+        `;
+        this._elements.searchInput = this._elements.selectdiv.querySelector("#recipe-search");
+        this._elements.resultsList = this._elements.selectdiv.querySelector("#recipe-results");
+        this.addListenersToSelect();
+
         const style = document.createElement("style");
         style.textContent = css;
 
-        // Attach to shadow root
         this.attachShadow({mode: "open"});
         this.shadowRoot.append(style, card);
     }
@@ -5612,47 +5619,41 @@ class RecipeCard extends HTMLElement {
         }
     }
 
-    fillSelect() {
-        this._elements.selectdiv.innerHTML = `
-            <div class="search-container">
-                <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
-                <ha-icon id="clear-search" icon="mdi:close-circle"></ha-icon>
-            </div>
-            <ul id="recipe-results" class="search-results"></ul>
-        `;
+    addListenersToSelect() {
+        const selectDiv = this._elements.selectdiv;
+        const searchInput = this._elements.searchInput;
 
-        const searchInput = this._elements.selectdiv.querySelector("#recipe-search");
-        const resultsList = this._elements.selectdiv.querySelector("#recipe-results");
-        const clearIcon = this._elements.selectdiv.querySelector("#clear-search");
-
-        let selectedIndex = -1;
+        this._selectedSearchIndex = -1;
 
         searchInput.addEventListener("input", () => {
-            selectedIndex = -1;
-            this.updateSearchResults(searchInput.value, resultsList);
+            this._selectedSearchIndex = -1;
+            this.updateSearchResults(searchInput.value, this._elements.resultsList);
         });
 
-        searchInput.addEventListener("focus", () => this.updateSearchResults(searchInput.value, resultsList));
+        searchInput.addEventListener("focus", () => this.updateSearchResults(searchInput.value, this._elements.resultsList));
 
         searchInput.addEventListener("keydown", (event) => {
-            const items = resultsList.querySelectorAll("li");
+            const items = this._elements.resultsList.querySelectorAll("li");
 
-            if (event.key === "ArrowDown") {
+            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
                 event.preventDefault();
-                if (selectedIndex < items.length - 1) {
-                    selectedIndex++;
-                    this.updateSelection(items, selectedIndex);
+                if (event.key === "ArrowDown") {
+                    if (this._selectedSearchIndex < items.length - 1) {
+                        this._selectedSearchIndex++;
+                    }
+                } else if (event.key === "ArrowUp") {
+                    if (this._selectedSearchIndex > 0) {
+                        this._selectedSearchIndex--;
+                    }
                 }
-            } else if (event.key === "ArrowUp") {
-                event.preventDefault();
-                if (selectedIndex > 0) {
-                    selectedIndex--;
-                    this.updateSelection(items, selectedIndex);
-                }
+
+                items.forEach(item => item.classList.remove("selected"));
+                items[index].classList.add("selected");
+                items[index].scrollIntoView({block: "nearest"});
             } else if (event.key === "Enter") {
                 event.preventDefault();
-                if (selectedIndex >= 0 && items[selectedIndex]) {
-                    items[selectedIndex].click();
+                if (this._selectedSearchIndex >= 0 && items[this._selectedSearchIndex]) {
+                    items[this._selectedSearchIndex].click();
                 }
             } else if (event.key === "Escape") {
                 this.clearSearchResults();
@@ -5660,15 +5661,16 @@ class RecipeCard extends HTMLElement {
             }
         });
 
-        searchInput.addEventListener("focusout", (event) => {
+        searchInput.addEventListener("focusout", () => {
             setTimeout(() => {
-                if (!this._elements.selectdiv.contains(document.activeElement)) {
+                if (!selectDiv.contains(document.activeElement)) {
                     this.clearSearchResults();
                 }
             }, 150);
         });
 
         // Clear input when clicking the clear icon
+        const clearIcon = selectDiv.querySelector("#clear-search");
         clearIcon.addEventListener("click", () => {
             searchInput.value = "";
             this.clearSearchResults();
@@ -5691,61 +5693,39 @@ class RecipeCard extends HTMLElement {
                 `).join("");
 
             resultsList.style.display = "block"; // Always show when empty
-            this.addClickEvents(resultsList);
-            return;
-        }
-
-        // Normal search using Fuse.js
-        let fuse = new Fuse(this._parsedRecipes, {
-            keys: ["name", "alternative_name"],
-            threshold: 0.3,
-            ignoreLocation: true
-        });
-
-        let results = fuse.search(query);
-        if (results.length === 0) {
-            fuse = new Fuse(this._parsedRecipes, {
-                keys: ["ingredients", "instructions"],
-                threshold: 0.3,
-                ignoreLocation: true
+        } else {
+            let fuse = new Fuse(this._parsedRecipes, {
+                keys: ["name", "alternative_name"], threshold: 0.3, ignoreLocation: true
             });
-            results = fuse.search(query);
+
+            let results = fuse.search(query);
+            if (results.length === 0) {
+                fuse = new Fuse(this._parsedRecipes, {
+                    keys: ["ingredients", "instructions"], threshold: 0.3, ignoreLocation: true
+                });
+                results = fuse.search(query);
+            }
+            resultsList.innerHTML = results
+                .map(result => `
+                <li data-index="${result.refIndex}">
+                    ${result.item.name}
+                    <span class="category-bubble">${result.item.category || "Uncategorized"}</span>
+                </li>
+            `).join("");
+
+            if (results.length > 0) {
+                resultsList.style.display = "block";
+            }
         }
-        resultsList.innerHTML = results
-            .map(result => `
-            <li data-index="${result.refIndex}">
-                ${result.item.name}
-                <span class="category-bubble">${result.item.category || "Uncategorized"}</span>
-            </li>
-        `)
-            .join("");
 
-        if (results.length > 0) {
-            resultsList.style.display = "block";
-        }
-
-        this.addClickEvents(resultsList);
-    }
-
-    addClickEvents(resultsList) {
-        const items = resultsList.querySelectorAll("li");
-
-        items.forEach(li => {
+        resultsList.querySelectorAll("li").forEach(li => {
             li.addEventListener("click", () => {
                 this._recipeIndex = li.getAttribute("data-index");
                 this._elements.selectdiv.querySelector("#recipe-search").value = this._parsedRecipes[this._recipeIndex].name;
                 this.clearSearchResults();
-                this.fillContent(); // Load the selected recipe
+                this.fillContent();
             });
         });
-    }
-
-    updateSelection(items, index) {
-        items.forEach(item => item.classList.remove("selected"));
-        if (items[index]) {
-            items[index].classList.add("selected");
-            items[index].scrollIntoView({block: "nearest"});
-        }
     }
 
     clearSearchResults() {
