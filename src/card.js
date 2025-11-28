@@ -39,7 +39,6 @@ class RecipeCard extends HTMLElement {
     }
 
     buildCard() {
-        // Make card
         const card = document.createElement("ha-card");
         card.innerHTML = "<div class='selectdiv'></div><div class='content'></div>";
         this._elements.content = card.querySelector(".content");
@@ -87,10 +86,7 @@ class RecipeCard extends HTMLElement {
 
     updateSearchResults(query, resultsList) {
         if (!query.trim()) {
-            // Show all recipes alphabetically
-            const sortedRecipes = [...this._parsedRecipes].sort((a, b) =>
-                a.name.localeCompare(b.name)
-            );
+            const sortedRecipes = [...this._parsedRecipes].sort((a, b) => a.name.localeCompare(b.name));
 
             resultsList.innerHTML = sortedRecipes
                 .map((recipe, index) => `
@@ -100,7 +96,7 @@ class RecipeCard extends HTMLElement {
                     </li>
                 `).join("");
 
-            resultsList.style.display = "block"; // Always show when empty
+            resultsList.style.display = "block";
         } else {
             let fuse = new Fuse(this._parsedRecipes, {
                 keys: ["name", "alternative_name"], threshold: 0.3, ignoreLocation: true
