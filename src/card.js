@@ -11,8 +11,7 @@ class RecipeCard extends HTMLElement {
     _parsedRecipes;
     _recipeIndex;
     _selectedSearchIndex = -1;
-    _basePersons;
-    _currentPersons;
+    _recipeStorage = {};
 
     setConfig(config) {
         this._config = config;
@@ -143,14 +142,9 @@ class RecipeCard extends HTMLElement {
             return;
         }
 
-        let recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
-
-        if (recipeStorage.currentRecipe !== this.recipe.name) {
-            recipeStorage = this.reset_recipe_storage();
+        if (this._recipeStorage.currentRecipe !== this.recipe.name) {
+            this.reset_recipe_storage();
         }
-
-        this._basePersons = this.recipe?.persons || 1;
-        this._currentPersons = recipeStorage?.persons || this._basePersons;
 
         this._elements.content.innerHTML = `
             <div class="recipe-header">
@@ -167,7 +161,7 @@ class RecipeCard extends HTMLElement {
                     <div class="persons-control">
                         <span>Aantal personen</span>
                         <div class="persons-minus"><ha-icon icon="mdi:minus-thick"></ha-icon></div>
-                        <span class="persons-count">${this._currentPersons}</span>
+                        <span class="persons-count">${this._recipeStorage?.currentPersons}</span>
                         <div class="persons-plus"><ha-icon icon="mdi:plus-thick"></ha-icon></div>
                     </div>` : ""}
             </div> 
@@ -192,25 +186,25 @@ class RecipeCard extends HTMLElement {
         });
         this._elements.content.querySelector(".print-icon").addEventListener("click", () => this.printRecipe());
         this._elements.content.querySelector(".persons-minus").addEventListener("click", () => {
-            if (this._currentPersons > 1) {
-                this._currentPersons--;
-                this._elements.personsCount.textContent = this._currentPersons;
-                this.updatePersonsStorageAndScale();
+            if (this._recipeStorage.currentPersons > 1) {
+                this._recipeStorage.currentPersons--;
+                this.updateLocalStorage();
+                this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
                 this.scaleAllQuantities();
             }
         });
         this._elements.content.querySelector(".persons-plus").addEventListener("click", () => {
-            this._currentPersons++;
-            this._elements.personsCount.textContent = this._currentPersons;
-            this.updatePersonsStorageAndScale();
+            this._recipeStorage.currentPersons++;
+            this.updateLocalStorage();
+            this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
             this.scaleAllQuantities();
         });
 
         this._elements.personsCount = this._elements.content.querySelector(".persons-count");
         this._elements.personsCount.addEventListener("click", () => {
-            this._currentPersons = this._basePersons;
-            this._elements.personsCount.textContent = this._currentPersons;
-            this.updatePersonsStorageAndScale();
+            this._recipeStorage.currentPersons = this.recipe?.persons;
+            this.updateLocalStorage();
+            this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
             this.scaleAllQuantities();
         });
 
@@ -219,19 +213,18 @@ class RecipeCard extends HTMLElement {
     }
 
     reset_recipe_storage() {
-        let recipeStorage = {currentRecipe: this.recipe.name, ingredients: {}, instructions: {}};
-        localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
-        return recipeStorage;
+        this._recipeStorage = {
+            currentRecipe: this.recipe.name, ingredients: {}, instructions: {}, currentPersons: this.recipe?.persons
+        };
+        this.updateLocalStorage();
     }
 
-    updatePersonsStorageAndScale() {
-        let recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
-        recipeStorage.persons = this._currentPersons;
-        localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
-    };
+    updateLocalStorage() {
+        localStorage.setItem("recipeStorage", JSON.stringify(this._recipeStorage));
+    }
 
     scaleAllQuantities() {
-        const multiplier = this._currentPersons / this._basePersons;
+        const multiplier = this._recipeStorage.currentPersons / this.recipe?.persons;
         const spans = this._elements.content.querySelectorAll(".recipe-quantity");
 
         spans.forEach(span => this.scaleQuantitySpan(span, multiplier));
@@ -338,8 +331,7 @@ class RecipeCard extends HTMLElement {
 
     makeListToggleable(selector, storageKey) {
         const listItems = this._elements.content.querySelectorAll(selector);
-        const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
-        const storedState = recipeStorage[storageKey] || {};
+        const storedState = this._recipeStorage[storageKey] || {};
 
         listItems.forEach(item => {
             const index = item.getAttribute("data-index");
@@ -349,13 +341,12 @@ class RecipeCard extends HTMLElement {
             }
 
             item.addEventListener("click", (event) => {
-                const recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
-                const storedState = recipeStorage[storageKey] || {};
+                const storedState = this._recipeStorage[storageKey] || {};
                 event.stopPropagation();
                 item.classList.toggle("checked");
                 storedState[index] = item.classList.contains("checked");
-                recipeStorage[storageKey] = storedState;
-                localStorage.setItem("recipeStorage", JSON.stringify(recipeStorage));
+                this._recipeStorage[storageKey] = storedState;
+                this.updateLocalStorage();
             });
         });
     }
