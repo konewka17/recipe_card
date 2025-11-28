@@ -6076,8 +6076,8 @@ function onSearchKeydown(event) {
         }
 
         items.forEach(item => item.classList.remove("selected"));
-        items[index].classList.add("selected");
-        items[index].scrollIntoView({block: "nearest"});
+        items[this._selectedSearchIndex].classList.add("selected");
+        items[this._selectedSearchIndex].scrollIntoView({block: "nearest"});
     } else if (event.key === "Enter") {
         event.preventDefault();
         if (this._selectedSearchIndex >= 0 && items[this._selectedSearchIndex]) {
