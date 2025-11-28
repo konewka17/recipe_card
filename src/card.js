@@ -143,6 +143,7 @@ class RecipeCard extends HTMLElement {
         }
 
         if (this._recipeStorage.currentRecipe !== this.recipe.name) {
+            console.log(`Resetting recipe storage for ${this.recipe.name} because it was changed from ${this._recipeStorage.currentRecipe}`)
             this.reset_recipe_storage();
         }
 
