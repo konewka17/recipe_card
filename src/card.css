@@ -68,7 +68,7 @@
 .recipe-banner {
     font-family: Calibri, sans-serif;
     position: relative;
-    z-index: 50;
+    z-index: 2;
 }
 
 .recipe-banner .persons-control {
@@ -170,7 +170,7 @@
     list-style: none;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     margin: 0;
-    z-index: 100;
+    z-index: 3;
 }
 
 /* Individual list items */

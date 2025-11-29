@@ -87,7 +87,7 @@ class RecipeCard extends HTMLElement {
             const urlWithTimestamp = `${this._config.url}?_=${new Date().getTime()}`;
             const response = await fetch(urlWithTimestamp);
             const yamlText = await response.text();
-            this._parsedRecipes = load(yamlText);
+            this._parsedRecipes = load(yamlText).sort((a, b) => a.name.localeCompare(b.name));
         } catch (error) {
             throw new Error(`Error fetching or parsing the recipe file: ${error}`);
         }
@@ -106,9 +106,7 @@ class RecipeCard extends HTMLElement {
 
     updateSearchResults(query, resultsList) {
         if (!query.trim()) {
-            const sortedRecipes = [...this._parsedRecipes].sort((a, b) => a.name.localeCompare(b.name));
-
-            resultsList.innerHTML = sortedRecipes
+            resultsList.innerHTML = this._parsedRecipes
                 .map((recipe, index) => `
                     <li data-index="${index}">
                         ${recipe.name}
