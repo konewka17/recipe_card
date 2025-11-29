@@ -30,9 +30,11 @@ class RecipeCard extends HTMLElement {
 
     initRecipeStorage() {
         this._recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
+        let recipeIndex = this._recipeStorage.currentRecipeIndex;
         if (this._recipeStorage.lastUpdatedTs < Date.now() - 60 * 60 * 1000) {
-            this.resetRecipeStorage()
+            recipeIndex = null;
         }
+        this.resetRecipeStorage(recipeIndex)
     }
 
     resetRecipeStorage(recipeIndex = null) {
