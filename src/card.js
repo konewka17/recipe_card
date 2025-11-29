@@ -30,11 +30,11 @@ class RecipeCard extends HTMLElement {
 
     initRecipeStorage() {
         this._recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
-        let recipeIndex = this._recipeStorage.currentRecipeIndex;
-        if (this._recipeStorage.lastUpdatedTs < Date.now() - 60 * 60 * 1000) {
-            recipeIndex = null;
+        if (!this._recipeStorage?.currentRecipeIndex || this._recipeStorage?.lastUpdatedTs < Date.now() - 60 * 60 * 1000) {
+            this.resetRecipeStorage();
+        } else {
+            this.setRecipe();
         }
-        this.resetRecipeStorage(recipeIndex);
     }
 
     resetRecipeStorage(recipeIndex = null) {
@@ -44,9 +44,13 @@ class RecipeCard extends HTMLElement {
         this._recipeStorage = {
             currentRecipeIndex: recipeIndex, ingredients: {}, instructions: {}, lastUpdatedTs: Date.now()
         };
-        this.recipe = this._parsedRecipes?.[recipeIndex];
-        this._recipeStorage.currentPersons = this.recipe?.persons;
+        this.setRecipe();
         this.updateLocalStorage();
+    }
+
+    setRecipe() {
+        this.recipe = this._parsedRecipes?.[this._recipeStorage.currentRecipeIndex];
+        this._recipeStorage.currentPersons = this.recipe?.persons;
     }
 
     updateLocalStorage() {
