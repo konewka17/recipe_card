@@ -5731,12 +5731,12 @@ class RecipeCard extends HTMLElement {
             currentRecipeIndex: recipeIndex, ingredients: {}, instructions: {}, lastUpdatedTs: Date.now()
         };
         this.setRecipe();
+        this._recipeStorage.currentPersons = this.recipe?.persons;
         this.updateLocalStorage();
     }
 
     setRecipe() {
         this.recipe = this._parsedRecipes?.[this._recipeStorage.currentRecipeIndex];
-        this._recipeStorage.currentPersons = this.recipe?.persons;
     }
 
     updateLocalStorage() {
