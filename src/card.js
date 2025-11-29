@@ -256,6 +256,7 @@ class RecipeCard extends HTMLElement {
 
     toggleEditMode() {
         if (this._isEditing) {
+            this.resetRecipeStorage(this._recipeStorage.currentRecipeIndex);
             this.fillContent();
             this._isEditing = false;
             return;
