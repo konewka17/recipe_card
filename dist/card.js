@@ -5724,6 +5724,7 @@ class RecipeCard extends HTMLElement {
     }
 
     resetRecipeStorage(recipeIndex = null) {
+        console.log('Resetting recipe storage');
         if (recipeIndex === null) {
             recipeIndex = findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
         }
