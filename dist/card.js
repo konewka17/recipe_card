@@ -5882,6 +5882,7 @@ class RecipeCard extends HTMLElement {
                 </ol>
             </div>
         `;
+        this.scaleAllQuantities();
 
         this._elements.content.querySelector(".edit-icon").addEventListener("click", () => this.toggleEditMode());
         this._elements.content.querySelector(".add-icon").addEventListener("click", () => this.createNewRecipe());
