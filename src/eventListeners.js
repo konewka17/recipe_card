@@ -48,3 +48,23 @@ export function onClearIconClick() {
     this._elements.searchInput.value = "";
     this.clearSearchResults();
 }
+
+export function onResetClick() {
+    this.resetRecipeStorage(this._recipeStorage.currentRecipeIndex);
+    this.fillContent();
+}
+
+export function onClickPersonsChange(change) {
+    if (this._recipeStorage.currentPersons <= 1 && change < 0) return;
+    this._recipeStorage.currentPersons += change;
+    this.updateLocalStorage();
+    this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
+    this.scaleAllQuantities();
+}
+
+export function onClickPersonsCount() {
+    this._recipeStorage.currentPersons = this.recipe?.persons;
+    this.updateLocalStorage();
+    this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
+    this.scaleAllQuantities();
+}

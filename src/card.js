@@ -1,7 +1,16 @@
 import {dump, load} from "js-yaml";
 import css from "./card.css";
 import Fuse from "fuse.js";
-import {onClearIconClick, onSearchFocus, onSearchFocusout, onSearchInput, onSearchKeydown} from "./eventListeners.js";
+import {
+    onClearIconClick,
+    onClickPersonsChange,
+    onClickPersonsCount,
+    onResetClick,
+    onSearchFocus,
+    onSearchFocusout,
+    onSearchInput,
+    onSearchKeydown
+} from "./eventListeners.js";
 import {formatNumber, markQuantitiesInText, parseNumber} from "./numberHelpers.js";
 
 class RecipeCard extends HTMLElement {
@@ -11,6 +20,7 @@ class RecipeCard extends HTMLElement {
     _parsedRecipes;
     _selectedSearchIndex = -1;
     _recipeStorage = {};
+    _viewMode = 'singleRecipe'
 
     setConfig(config) {
         this._config = config;
@@ -106,14 +116,11 @@ class RecipeCard extends HTMLElement {
 
     updateSearchResults(query, resultsList) {
         if (!query.trim()) {
-            resultsList.innerHTML = this._parsedRecipes
-                .map((recipe, index) => `
+            resultsList.innerHTML = this._parsedRecipes.map((recipe, index) => `
                     <li data-index="${index}">
                         ${recipe.name}
                         <span class="category-bubble">${recipe.category || "Uncategorized"}</span>
-                    </li>
-                `).join("");
-
+                    </li>`).join("");
             resultsList.style.display = "block";
         } else {
             let fuse = new Fuse(this._parsedRecipes, {
@@ -158,11 +165,14 @@ class RecipeCard extends HTMLElement {
             this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
             return;
         }
-        if (this._isEditing) {
+        if (this._viewMode === 'editRecipe') {
             this.fillContentEditMode();
             return;
         }
+        this.fillContentSingleRecipe();
+    }
 
+    fillContentSingleRecipe() {
         this._elements.content.innerHTML = `
             <div class="recipe-header">
                 <div class="recipe-title">${this.recipe.name}</div>
@@ -194,81 +204,54 @@ class RecipeCard extends HTMLElement {
                 </ol>
             </div>
         `;
-        this.scaleAllQuantities()
+        this.scaleAllQuantities();
 
-        this._elements.content.querySelector(".edit-icon").addEventListener("click", () => this.toggleEditMode());
-        this._elements.content.querySelector(".add-icon").addEventListener("click", () => this.createNewRecipe());
-        this._elements.content.querySelector(".reset-strikeout-icon").addEventListener("click", () => {
-            this.resetRecipeStorage(this._recipeStorage.currentRecipeIndex);
-            this.fillContent();
-        });
-        this._elements.content.querySelector(".print-icon").addEventListener("click", () => this.printRecipe());
-        this._elements.content.querySelector(".persons-minus")?.addEventListener("click", () => {
-            if (this._recipeStorage.currentPersons > 1) {
-                this._recipeStorage.currentPersons--;
-                this.updateLocalStorage();
-                this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
-                this.scaleAllQuantities();
-            }
-        });
-        this._elements.content.querySelector(".persons-plus")?.addEventListener("click", () => {
-            this._recipeStorage.currentPersons++;
-            this.updateLocalStorage();
-            this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
-            this.scaleAllQuantities();
-        });
+        const content = this._elements.content;
+        content.querySelector(".edit-icon").addEventListener("click", this.toggleEditMode.bind(this));
+        content.querySelector(".add-icon").addEventListener("click", this.createNewRecipe.bind(this));
+        content.querySelector(".reset-strikeout-icon").addEventListener("click", onResetClick.bind(this));
+        content.querySelector(".print-icon").addEventListener("click", this.printRecipe.bind(this));
+        content.querySelector(".persons-minus")?.addEventListener("click", onClickPersonsChange.bind(this, -1));
+        content.querySelector(".persons-plus")?.addEventListener("click", onClickPersonsChange.bind(this, 1));
+        content.querySelector(".persons-count").addEventListener("click", onClickPersonsCount.bind(this));
 
-        this._elements.personsCount = this._elements.content?.querySelector(".persons-count");
-        this._elements.personsCount?.addEventListener("click", () => {
-            this._recipeStorage.currentPersons = this.recipe?.persons;
-            this.updateLocalStorage();
-            this._elements.personsCount.textContent = this._recipeStorage.currentPersons;
-            this.scaleAllQuantities();
-        });
-
+        this._elements.personsCount = content.querySelector(".persons-count");
         this.makeListToggleable(".ingredient-list li", "ingredients");
         this.makeListToggleable(".instruction-list li", "instructions");
     }
 
     scaleAllQuantities() {
-        const multiplier = this._recipeStorage.currentPersons / this.recipe?.persons;
-        const spans = this._elements.content.querySelectorAll(".recipe-quantity");
-
-        spans.forEach(span => this.scaleQuantitySpan(span, multiplier));
-    }
-
-    scaleQuantitySpan(span, multiplier) {
-        const orig = span.dataset.original;
-        if (!orig) return;
-
-        span.textContent = formatNumber(parseNumber(orig) * multiplier);
-        span.parentElement.classList.toggle("scaled_quantity", multiplier !== 1);
+        const multiplier = this._recipeStorage.currentPersons / this.recipe.persons;
+        this._elements.content.querySelectorAll(".recipe-quantity").forEach(span => {
+            span.textContent = formatNumber(parseNumber(span.dataset.original) * multiplier);
+            span.parentElement.classList.toggle("scaled_quantity", multiplier !== 1);
+        });
     }
 
     printRecipe() {
         const printContent = this._elements.content.innerHTML;
         const printWindow = window.open("", "", "width=800,height=600");
         printWindow.document.write(`
-        <html>
-        <head>
-            <style> ${css} </style>
-        </head>
-        <body onload="window.print(); //window.close();">
-            <div class="print-container">
-                ${printContent}
-            </div>
-        </body>
-        </html>
-    `);
+            <html>
+            <head>
+                <style> ${css} </style>
+            </head>
+            <body onload="window.print(); //window.close();">
+                <div class="print-container">
+                    ${printContent}
+                </div>
+            </body>
+            </html>
+        `);
         printWindow.document.close();
     }
 
     toggleEditMode() {
-        if (this._isEditing) {
+        if (this._viewMode === 'editRecipe') {
             this.resetRecipeStorage(this._recipeStorage.currentRecipeIndex);
-            this._isEditing = false;
+            this._viewMode = 'singleRecipe';
         } else {
-            this._isEditing = true;
+            this._viewMode = 'editRecipe';
         }
         this.fillContent();
     }
@@ -288,8 +271,8 @@ class RecipeCard extends HTMLElement {
         this._elements.cancelButton = this._elements.content.querySelector(".cancel-button");
         this._elements.textarea = this._elements.content.querySelector(".yaml-editor");
 
-        this._elements.saveButton.addEventListener("click", () => this.saveEditedRecipe());
-        this._elements.cancelButton.addEventListener("click", () => this.toggleEditMode());
+        this._elements.saveButton.addEventListener("click", this.saveEditedRecipe.bind(this));
+        this._elements.cancelButton.addEventListener("click", this.toggleEditMode.bind(this));
     }
 
     async saveEditedRecipe() {
