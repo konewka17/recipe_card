@@ -5695,7 +5695,6 @@ class RecipeCard extends HTMLElement {
     _hass;
     _elements = {};
     _parsedRecipes;
-    _recipeIndex;
     _selectedSearchIndex = -1;
     _recipeStorage = {};
 
@@ -5705,9 +5704,8 @@ class RecipeCard extends HTMLElement {
             throw new Error("Please define a url in config!");
         }
         this.buildCard();
-        this.initRecipeStorage();
         this.fetchRecipes().then(() => {
-            this.initRecipeIndex();
+            this.initRecipeStorage();
             this.fillContent();
         });
     }
@@ -5719,30 +5717,17 @@ class RecipeCard extends HTMLElement {
     initRecipeStorage() {
         this._recipeStorage = JSON.parse(localStorage.getItem("recipeStorage")) || {};
         if (this._recipeStorage.lastUpdatedTs < Date.now() - 60 * 60 * 1000) {
-            this._recipeStorage = {};
+            this.resetRecipeStorage();
         }
     }
 
-    initRecipeIndex() {
-        let recipeIndex = this._recipeStorage?.currentRecipeIndex;
-        if (!recipeIndex) {
+    resetRecipeStorage(recipeIndex = null) {
+        if (recipeIndex === null){
             recipeIndex = findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
         }
-        this.setRecipe(recipeIndex);
-    }
-
-    setRecipe(index) {
-        if (index) {
-            this._recipeIndex = index;
-        }
-        this.recipe = this._parsedRecipes?.[this._recipeIndex];
-    }
-
-    resetRecipeStorage() {
-        this._recipeStorage = {
-            currentRecipeIndex: this._recipeIndex, ingredients: {}, instructions: {},
-            currentPersons: this.recipe?.persons, lastUpdatedTs: Date.now()
-        };
+        this._recipeStorage = {currentRecipeIndex: recipeIndex, ingredients: {}, instructions: {}, lastUpdatedTs: Date.now()};
+        this.recipe = this._parsedRecipes?.[recipeIndex];
+        this._recipeStorage.currentPersons = this.recipe?.persons;
         this.updateLocalStorage();
     }
 
@@ -5837,7 +5822,7 @@ class RecipeCard extends HTMLElement {
 
         resultsList.querySelectorAll("li").forEach(li => {
             li.addEventListener("click", () => {
-                this.setRecipe(li.getAttribute("data-index"));
+                this.resetRecipeStorage(li.getAttribute("data-index"));
                 this.clearSearchResults();
                 this.fillContent();
             });
@@ -5852,10 +5837,6 @@ class RecipeCard extends HTMLElement {
         if (!this.recipe) {
             this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
             return;
-        }
-
-        if (this._recipeStorage.currentRecipeIndex !== this._recipeIndex) {
-            this.resetRecipeStorage();
         }
 
         this._elements.content.innerHTML = `
@@ -5893,7 +5874,7 @@ class RecipeCard extends HTMLElement {
         this._elements.content.querySelector(".edit-icon").addEventListener("click", () => this.toggleEditMode());
         this._elements.content.querySelector(".add-icon").addEventListener("click", () => this.createNewRecipe());
         this._elements.content.querySelector(".reset-strikeout-icon").addEventListener("click", () => {
-            this.resetRecipeStorage();
+            this.resetRecipeStorage(this._recipeStorage.currentRecipeIndex);
             this.fillContent();
         });
         this._elements.content.querySelector(".print-icon").addEventListener("click", () => this.printRecipe());
@@ -6016,13 +5997,11 @@ class RecipeCard extends HTMLElement {
         }
 
         try {
-            await this._hass.callService("recipes", "create_recipe", {
-                recipe_name: recipeName
-            });
+            await this._hass.callService("recipes", "create_recipe", {recipe_name: recipeName});
             await this.fetchRecipes();
             const newIndex = this._parsedRecipes.findIndex(recipe => recipe.name === recipeName);
             if (newIndex !== -1) {
-                this.setRecipe(newIndex);
+                this.resetRecipeStorage(newIndex);
                 this.fillContent();
             }
         } catch (error) {
