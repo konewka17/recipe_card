@@ -34,16 +34,18 @@ class RecipeCard extends HTMLElement {
         if (this._recipeStorage.lastUpdatedTs < Date.now() - 60 * 60 * 1000) {
             recipeIndex = null;
         }
-        this.resetRecipeStorage(recipeIndex)
+        this.resetRecipeStorage(recipeIndex);
     }
 
     resetRecipeStorage(recipeIndex = null) {
-        if (recipeIndex === null){
+        if (recipeIndex === null) {
             recipeIndex = findBestMatchingRecipe(this._parsedRecipes, this._hass?.states["input_text.wat_eten_we_vandaag"]?.state);
         }
-        this._recipeStorage = {currentRecipeIndex: recipeIndex, ingredients: {}, instructions: {}, lastUpdatedTs: Date.now()};
+        this._recipeStorage = {
+            currentRecipeIndex: recipeIndex, ingredients: {}, instructions: {}, lastUpdatedTs: Date.now()
+        };
         this.recipe = this._parsedRecipes?.[recipeIndex];
-        this._recipeStorage.currentPersons = this.recipe?.persons
+        this._recipeStorage.currentPersons = this.recipe?.persons;
         this.updateLocalStorage();
     }
 
@@ -154,6 +156,10 @@ class RecipeCard extends HTMLElement {
             this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
             return;
         }
+        if (this._isEditing) {
+            this.fillContentEditMode();
+            return;
+        }
 
         this._elements.content.innerHTML = `
             <div class="recipe-header">
@@ -257,12 +263,14 @@ class RecipeCard extends HTMLElement {
     toggleEditMode() {
         if (this._isEditing) {
             this.resetRecipeStorage(this._recipeStorage.currentRecipeIndex);
-            this.fillContent();
             this._isEditing = false;
-            return;
+        } else {
+            this._isEditing = true;
         }
+        this.fillContent();
+    }
 
-        this._isEditing = true;
+    fillContentEditMode() {
         const yamlContent = dump(this.recipe, {lineWidth: -1, styles: {"!!null": "empty"}});
 
         this._elements.content.innerHTML = `
