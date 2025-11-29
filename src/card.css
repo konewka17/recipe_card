@@ -68,7 +68,7 @@
 .recipe-banner {
     font-family: Calibri, sans-serif;
     position: relative;
-    z-index: 100;
+    z-index: 50;
 }
 
 .recipe-banner .persons-control {
