@@ -5717,7 +5717,7 @@ class RecipeCard extends HTMLElement {
     _parsedRecipes;
     _selectedSearchIndex = -1;
     _recipeStorage = {};
-    _viewMode = 'singleRecipe'
+    _viewMode = "singleRecipe";
 
     setConfig(config) {
         this._config = config;
@@ -5862,7 +5862,7 @@ class RecipeCard extends HTMLElement {
             this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
             return;
         }
-        if (this._viewMode === 'editRecipe') {
+        if (this._viewMode === "editRecipe") {
             this.fillContentEditMode();
             return;
         }
@@ -5918,11 +5918,13 @@ class RecipeCard extends HTMLElement {
     }
 
     scaleAllQuantities() {
-        const multiplier = this._recipeStorage.currentPersons / this.recipe.persons;
-        this._elements.content.querySelectorAll(".recipe-quantity").forEach(span => {
-            span.textContent = formatNumber(parseNumber(span.dataset.original) * multiplier);
-            span.parentElement.classList.toggle("scaled_quantity", multiplier !== 1);
-        });
+        if (this._recipeStorage.currentPersons && this.recipe.persons) {
+            const multiplier = this._recipeStorage.currentPersons / this.recipe.persons;
+            this._elements.content.querySelectorAll(".recipe-quantity").forEach(span => {
+                span.textContent = formatNumber(parseNumber(span.dataset.original) * multiplier);
+                span.parentElement.classList.toggle("scaled_quantity", multiplier !== 1);
+            });
+        }
     }
 
     printRecipe() {
@@ -5944,11 +5946,11 @@ class RecipeCard extends HTMLElement {
     }
 
     toggleEditMode() {
-        if (this._viewMode === 'editRecipe') {
+        if (this._viewMode === "editRecipe") {
             this.resetRecipeStorage(this._recipeStorage.currentRecipeIndex);
-            this._viewMode = 'singleRecipe';
+            this._viewMode = "singleRecipe";
         } else {
-            this._viewMode = 'editRecipe';
+            this._viewMode = "editRecipe";
         }
         this.fillContent();
     }
