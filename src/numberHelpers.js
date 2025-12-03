@@ -1,4 +1,4 @@
-let quantityRegex = /(?<num>[0-9¼½¾,.]+)(?:(?<sep>\s*(?:[\-–\/]|(?:tot|à|a|of))\s*)(?<num2>[0-9¼½¾,.]+))?(?<unit> ?(?:(?<skippableUnit>min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
+let quantityRegex = /(?<num>[0-9¼½¾]+(?:[,.][0-9¼½¾]+)?)(?:(?<sep>\s*(?:[\-–\/]|(?:tot|à|a|of))\s*)(?<num2>[0-9¼½¾,.]+))?(?<unit> ?(?:(?<skippableUnit>min(?:uten|uut)?\.?|uur|graden|° ?C?|pers(?:\.|onen))|([^\s\d¼½¾()]*)))(?:(?=[^A-Za-z])|$)/g;
 
 export function markQuantitiesInText(text) {
     if (!text) return text;
