@@ -21,6 +21,8 @@ class RecipeCard extends HTMLElement {
     _selectedSearchIndex = -1;
     _recipeStorage = {};
     _viewMode = "singleRecipe";
+    _menuGroupByCategory = false;
+    _menuHidePrinted = false;
 
     setConfig(config) {
         this._config = config;
@@ -76,12 +78,16 @@ class RecipeCard extends HTMLElement {
         this._elements.selectdiv = card.querySelector(".selectdiv");
         this._elements.selectdiv.innerHTML = `
             <div class="search-container">
+                <button class="menu-toggle" aria-label="Open menu">
+                    <ha-icon icon="mdi:menu"></ha-icon>
+                </button>
                 <input type="text" id="recipe-search" placeholder="Search for a recipe..." autocomplete="off">
                 <ha-icon id="clear-search" icon="mdi:close-circle"></ha-icon>
             </div>
             <ul id="recipe-results" class="search-results"></ul>
         `;
         this._elements.searchInput = this._elements.selectdiv.querySelector("#recipe-search");
+        this._elements.menuToggle = this._elements.selectdiv.querySelector(".menu-toggle");
         this._elements.resultsList = this._elements.selectdiv.querySelector("#recipe-results");
         this.addListenersToSelect();
 
@@ -107,6 +113,10 @@ class RecipeCard extends HTMLElement {
         const searchInput = this._elements.searchInput;
         const clearIcon = this._elements.selectdiv.querySelector("#clear-search");
 
+        this._elements.menuToggle.addEventListener("click", () => {
+            this._viewMode = "menu";
+            this.fillContent();
+        });
         searchInput.addEventListener("input", onSearchInput.bind(this));
         searchInput.addEventListener("focus", onSearchFocus.bind(this));
         searchInput.addEventListener("keydown", onSearchKeydown.bind(this));
@@ -151,6 +161,7 @@ class RecipeCard extends HTMLElement {
             li.addEventListener("click", () => {
                 this.resetRecipeStorage(li.getAttribute("data-index"));
                 this.clearSearchResults();
+                this._viewMode = "singleRecipe";
                 this.fillContent();
             });
         });
@@ -161,15 +172,100 @@ class RecipeCard extends HTMLElement {
     }
 
     fillContent() {
-        if (!this.recipe) {
-            this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
+        if (this._viewMode === "menu") {
+            this.fillContentMenu();
             return;
         }
         if (this._viewMode === "editRecipe") {
             this.fillContentEditMode();
             return;
         }
+        if (!this.recipe) {
+            this._elements.content.innerHTML = `Geen recepten gevonden voor ${this._hass.states["input_text.wat_eten_we_vandaag"].state}`;
+            return;
+        }
         this.fillContentSingleRecipe();
+    }
+
+    fillContentMenu() {
+        const recipesWithIndex = (this._parsedRecipes || []).map((recipe, index) => ({recipe, index}))
+            .filter(({recipe}) => !this._menuHidePrinted || recipe.printed !== true);
+
+        let listHtml = "";
+        if (this._menuGroupByCategory) {
+            const grouped = recipesWithIndex.reduce((acc, item) => {
+                const category = item.recipe.category || "Uncategorized";
+                acc[category] = acc[category] || [];
+                acc[category].push(item);
+                return acc;
+            }, {});
+
+            listHtml = Object.keys(grouped).sort((a, b) => a.localeCompare(b)).map(category => `
+                <div class="menu-category">
+                    <div class="menu-category-title">${category}</div>
+                    <ul class="menu-list">
+                        ${grouped[category]
+                            .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
+                            .map(({recipe, index}) => `<li data-index="${index}">${recipe.name}</li>`)
+                            .join("")}
+                    </ul>
+                </div>
+            `).join("");
+        } else {
+            listHtml = `
+                <ul class="menu-list">
+                    ${recipesWithIndex
+                        .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
+                        .map(({recipe, index}) => `<li data-index="${index}">${recipe.name}</li>`)
+                        .join("")}
+                </ul>
+            `;
+        }
+
+        this._elements.content.innerHTML = `
+            <div class="menu-controls">
+                <button class="menu-back" aria-label="Back to recipe">
+                    <ha-icon icon="mdi:arrow-left"></ha-icon>
+                </button>
+                <button class="menu-group-toggle ${this._menuGroupByCategory ? "active" : ""}">
+                    Group by category
+                </button>
+                <label class="menu-filter-toggle">
+                    <input type="checkbox" id="menu-hide-printed" ${this._menuHidePrinted ? "checked" : ""}>
+                    Only show unprinted
+                </label>
+            </div>
+            <div class="menu-results">
+                ${listHtml || "<div class='menu-empty'>No recipes found.</div>"}
+            </div>
+        `;
+
+        const backButton = this._elements.content.querySelector(".menu-back");
+        const groupToggle = this._elements.content.querySelector(".menu-group-toggle");
+        const hidePrintedToggle = this._elements.content.querySelector("#menu-hide-printed");
+
+        backButton.addEventListener("click", () => {
+            this._viewMode = "singleRecipe";
+            this.fillContent();
+        });
+
+        groupToggle.addEventListener("click", () => {
+            this._menuGroupByCategory = !this._menuGroupByCategory;
+            this.fillContentMenu();
+        });
+
+        hidePrintedToggle.addEventListener("change", () => {
+            this._menuHidePrinted = hidePrintedToggle.checked;
+            this.fillContentMenu();
+        });
+
+        this._elements.content.querySelectorAll(".menu-list li").forEach(li => {
+            li.addEventListener("click", () => {
+                this.resetRecipeStorage(li.getAttribute("data-index"));
+                this._viewMode = "singleRecipe";
+                this.fillContent();
+            });
+        });
     }
 
     fillContentSingleRecipe() {

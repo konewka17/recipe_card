@@ -25,6 +25,8 @@
 .print-container .reset-strikeout-icon,
 .print-container .print-icon,
 .print-container .search-container,
+.print-container .menu-controls,
+.print-container .menu-results,
 .print-container .persons-minus,
 .print-container .persons-plus,
 .print-container #recipe-results {
@@ -128,6 +130,7 @@
     display: flex;
     align-items: center;
     width: 100%;
+    gap: 8px;
 }
 
 #recipe-search {
@@ -153,6 +156,21 @@
 
 #recipe-search:not(:placeholder-shown) + #clear-search {
     display: block;
+}
+
+.menu-toggle {
+    border: none;
+    background: #f3f3f3;
+    border-radius: 10px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: #666;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.menu-toggle:hover {
+    background: #e0e0e0;
+    color: #333;
 }
 
 
@@ -288,4 +306,84 @@
     color: #333;
     background-color: #ddd;
     border-radius: 100%;
+}
+
+.menu-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+    font-family: Calibri, sans-serif;
+}
+
+.menu-back {
+    border: none;
+    background: #f3f3f3;
+    border-radius: 10px;
+    padding: 6px 8px;
+    cursor: pointer;
+    color: #666;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.menu-back:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.menu-group-toggle {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    padding: 6px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.menu-group-toggle.active {
+    background: #e8f4ff;
+    border-color: #7fb9e5;
+}
+
+.menu-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.menu-results {
+    font-family: Calibri, sans-serif;
+}
+
+.menu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-list li {
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.menu-list li:hover {
+    background: #f0f0f0;
+}
+
+.menu-category {
+    margin-bottom: 12px;
+}
+
+.menu-category-title {
+    font-weight: bold;
+    margin: 8px 0 4px;
+}
+
+.menu-empty {
+    color: #666;
+    font-style: italic;
 }
