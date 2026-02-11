@@ -6034,7 +6034,7 @@ class RecipeCard extends HTMLElement {
     }
 
     printRecipe() {
-        this.markAsPrinted();
+        this.setPrinted(true);
         const printContent = this._elements.content.innerHTML;
         const printWindow = window.open("", "", "width=800,height=600");
         printWindow.document.write(`
@@ -6052,17 +6052,14 @@ class RecipeCard extends HTMLElement {
         printWindow.document.close();
     }
 
-    async markAsPrinted() {
-        if (this.recipe?.printed === true) return;
-
+    async setPrinted(printed) {
         try {
             await this._hass.callService("recipes", "update_recipe", {
                 recipe_name: this.recipe.name,
-                printed: true
+                printed: printed
             });
 
-            this.recipe.printed = true;
-            this.fillContent();
+            this.fetchRecipes().then(() => this.fillContent());
         } catch (error) {
             alert("Failed to update printed status: " + error.message);
         }
