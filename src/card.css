@@ -29,16 +29,26 @@
 .print-container .menu-results,
 .print-container .persons-minus,
 .print-container .persons-plus,
-.print-container #recipe-results {
+.print-container #recipe-results,
+.print-container .print-status-pill{
     display: none !important;
 }
 
+.print-container .persons-control{
+    position: absolute;
+    right: 0;
+    background: none !important;
+    padding: 0 10px 0 0;
+    font-family: Calibri, sans-serif;
+    font-size: 12pt;
+}
+
 .print-container .recipe-header {
-    font-size: 14pt;
+    font-size: 15pt;
 }
 
 .print-container .recipe-content {
-    font-size: 11pt;
+    font-size: 12pt;
 }
 
 .selectdiv {
