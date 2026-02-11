@@ -114,7 +114,7 @@ class RecipeCard extends HTMLElement {
         const clearIcon = this._elements.selectdiv.querySelector("#clear-search");
 
         this._elements.menuToggle.addEventListener("click", () => {
-            this._viewMode = "menu";
+            this._viewMode = this._viewMode === "menu" ? "singleRecipe" : "menu";
             this.fillContent();
         });
         searchInput.addEventListener("input", onSearchInput.bind(this));
@@ -172,6 +172,7 @@ class RecipeCard extends HTMLElement {
     }
 
     fillContent() {
+        this.updateMenuToggleIcon();
         if (this._viewMode === "menu") {
             this.fillContentMenu();
             return;
@@ -185,6 +186,16 @@ class RecipeCard extends HTMLElement {
             return;
         }
         this.fillContentSingleRecipe();
+    }
+
+    updateMenuToggleIcon() {
+        const icon = this._viewMode === "menu" ? "mdi:arrow-left" : "mdi:menu";
+        const label = this._viewMode === "menu" ? "Back to recipe" : "Open menu";
+        const iconEl = this._elements.menuToggle?.querySelector("ha-icon");
+        if (iconEl) {
+            iconEl.setAttribute("icon", icon);
+        }
+        this._elements.menuToggle?.setAttribute("aria-label", label);
     }
 
     fillContentMenu() {
@@ -216,7 +227,12 @@ class RecipeCard extends HTMLElement {
                 <ul class="menu-list">
                     ${recipesWithIndex
                         .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
-                        .map(({recipe, index}) => `<li data-index="${index}">${recipe.name}</li>`)
+                        .map(({recipe, index}) => `
+                            <li data-index="${index}">
+                                ${recipe.name}
+                                <span class="category-bubble">${recipe.category || "Uncategorized"}</span>
+                            </li>
+                        `)
                         .join("")}
                 </ul>
             `;
@@ -224,38 +240,28 @@ class RecipeCard extends HTMLElement {
 
         this._elements.content.innerHTML = `
             <div class="menu-controls">
-                <button class="menu-back" aria-label="Back to recipe">
-                    <ha-icon icon="mdi:arrow-left"></ha-icon>
-                </button>
                 <button class="menu-group-toggle ${this._menuGroupByCategory ? "active" : ""}">
                     Group by category
                 </button>
-                <label class="menu-filter-toggle">
-                    <input type="checkbox" id="menu-hide-printed" ${this._menuHidePrinted ? "checked" : ""}>
+                <button class="menu-filter-toggle ${this._menuHidePrinted ? "active" : ""}" aria-pressed="${this._menuHidePrinted}">
                     Only show unprinted
-                </label>
+                </button>
             </div>
             <div class="menu-results">
                 ${listHtml || "<div class='menu-empty'>No recipes found.</div>"}
             </div>
         `;
 
-        const backButton = this._elements.content.querySelector(".menu-back");
         const groupToggle = this._elements.content.querySelector(".menu-group-toggle");
-        const hidePrintedToggle = this._elements.content.querySelector("#menu-hide-printed");
-
-        backButton.addEventListener("click", () => {
-            this._viewMode = "singleRecipe";
-            this.fillContent();
-        });
+        const hidePrintedToggle = this._elements.content.querySelector(".menu-filter-toggle");
 
         groupToggle.addEventListener("click", () => {
             this._menuGroupByCategory = !this._menuGroupByCategory;
             this.fillContentMenu();
         });
 
-        hidePrintedToggle.addEventListener("change", () => {
-            this._menuHidePrinted = hidePrintedToggle.checked;
+        hidePrintedToggle.addEventListener("click", () => {
+            this._menuHidePrinted = !this._menuHidePrinted;
             this.fillContentMenu();
         });
 

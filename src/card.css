@@ -314,25 +314,11 @@
     gap: 10px;
     align-items: center;
     margin-bottom: 12px;
-    font-family: Calibri, sans-serif;
+    font-family: inherit;
 }
 
-.menu-back {
-    border: none;
-    background: #f3f3f3;
-    border-radius: 10px;
-    padding: 6px 8px;
-    cursor: pointer;
-    color: #666;
-    transition: background 0.2s ease, color 0.2s ease;
-}
-
-.menu-back:hover {
-    background: #e0e0e0;
-    color: #333;
-}
-
-.menu-group-toggle {
+.menu-group-toggle,
+.menu-filter-toggle {
     border: 1px solid #ccc;
     background: #fafafa;
     padding: 6px 10px;
@@ -341,20 +327,14 @@
     transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.menu-group-toggle.active {
+.menu-group-toggle.active,
+.menu-filter-toggle.active {
     background: #e8f4ff;
     border-color: #7fb9e5;
 }
 
-.menu-filter-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-}
-
 .menu-results {
-    font-family: Calibri, sans-serif;
+    font-family: inherit;
 }
 
 .menu-list {
