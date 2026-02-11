@@ -367,6 +367,7 @@ class RecipeCard extends HTMLElement {
                 printed: printed
             });
 
+            this.recipe.printed = printed
             this.fetchRecipes().then(() => this.fillContent());
         } catch (error) {
             alert("Failed to update printed status: " + error.message);
