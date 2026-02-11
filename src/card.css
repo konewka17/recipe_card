@@ -45,10 +45,12 @@
 
 .print-container .recipe-header {
     font-size: 15pt;
+    border-bottom: #666 1px solid;
 }
 
 .print-container .recipe-content {
     font-size: 12pt;
+    margin-left: 0;
 }
 
 .selectdiv {
