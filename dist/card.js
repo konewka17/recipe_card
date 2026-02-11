@@ -3768,7 +3768,7 @@ var dumper = {
 var load                = loader.load;
 var dump                = dumper.dump;
 
-var css = "@media print {\r\n    @page {\r\n        size: A4 landscape;\r\n        margin: 0;\r\n    }\r\n\r\n    body {\r\n        margin: 0;\r\n        padding: 16mm;\r\n        width: calc(148mm / 0.9);\r\n        height: calc(210mm / 0.9);\r\n        box-sizing: border-box;\r\n        scale: 0.9;\r\n        transform-origin: top left;\r\n        page-break-inside: avoid;\r\n        break-inside: avoid;\r\n        overflow: hidden;\r\n        position: fixed;\r\n        top: 0;\r\n        left: 0;\r\n    }\r\n}\r\n\r\n.print-container .edit-icon,\r\n.print-container .reset-strikeout-icon,\r\n.print-container .print-icon,\r\n.print-container .search-container,\n.print-container .menu-controls,\n.print-container .menu-results,\n.print-container .persons-minus,\n.print-container .persons-plus,\n.print-container #recipe-results {\n    display: none !important;\n}\n\r\n.print-container .recipe-header {\r\n    font-size: 14pt;\r\n}\r\n\r\n.print-container .recipe-content {\r\n    font-size: 11pt;\r\n}\r\n\r\n.selectdiv {\r\n    margin: 10px;\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n}\r\n\r\n.recipe-header {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 2px;\r\n    font-family: Cambria serif;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.recipe-banner {\r\n    font-family: Calibri, sans-serif;\r\n    position: relative;\r\n    z-index: 2;\r\n}\r\n\r\n.recipe-banner .persons-control {\r\n    padding: 3px 8px;\r\n    display: inline-block;\r\n    background-color: #eee;\r\n    border-radius: 8px;\r\n}\r\n\r\n.recipe-banner .persons-control .persons-count {\r\n    font-weight: bold;\r\n    padding: 0 5px;\r\n    cursor: pointer;\r\n}\r\n\r\n.recipe-banner .persons-control .persons-count:hover {\r\n    background-color: #ddd;\r\n}\r\n\r\n.persons-plus, .persons-minus {\r\n    display: inline-block;\r\n    width: 14px;\r\n    height: 14px;\r\n    --mdc-icon-size: 100%;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n    position: relative;\r\n    font-family: Calibri, sans-serif;\r\n}\r\n\r\n.ingredient-list, .instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient-list li, .instruction-list li {\r\n    cursor: pointer;\r\n    transition: color 0.2s ease, text-decoration 0.2s ease;\r\n}\r\n\r\n.ingredient-list li.checked, .instruction-list li.checked {\r\n    text-decoration: line-through;\r\n    color: #888;\r\n}\r\n\r\n/* Container for the search input and results */\r\n.selectdiv {\r\n    position: relative;\r\n    margin: 10px;\r\n}\r\n\r\n/* Search input field */\r\n.search-container {\n    position: relative;\n    display: flex;\n    align-items: center;\n    width: 100%;\n    gap: 8px;\n}\n\n#recipe-search {\n    flex-grow: 1;\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    font-size: 16px;\r\n}\r\n\r\n#clear-search {\r\n    position: absolute;\r\n    right: 10px;\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #888;\r\n    display: none;\r\n}\r\n\r\n#clear-search:hover {\r\n    color: #555;\r\n}\r\n\r\n#recipe-search:not(:placeholder-shown) + #clear-search {\n    display: block;\n}\n\n.menu-toggle {\n    border: none;\n    background: #f3f3f3;\n    border-radius: 10px;\n    padding: 6px 8px;\n    cursor: pointer;\n    color: #666;\n    transition: background 0.2s ease, color 0.2s ease;\n}\n\n.menu-toggle:hover {\n    background: #e0e0e0;\n    color: #333;\n}\n\r\n\r\n/* Search results dropdown */\r\n#recipe-results {\r\n    display: none; /* JS controls visibility */\r\n    position: absolute;\r\n    width: calc(100% - 5px);\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    padding: 5px 0;\r\n    list-style: none;\r\n    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);\r\n    margin: 0;\r\n    z-index: 3;\r\n}\r\n\r\n/* Individual list items */\r\n#recipe-results li {\r\n    padding: 2px 10px;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n.scaled_quantity{\r\n    color: #2196f3;\r\n    font-style: italic;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Hover effect */\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Selected item (for keyboard navigation) */\r\n#recipe-results li.selected {\r\n    background: #dcdcdc;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Category bubble */\r\n.category-bubble {\r\n    display: inline-block;\r\n    background-color: #f4a261;\r\n    color: white;\r\n    font-size: 12px;\r\n    padding: 4px 8px;\r\n    border-radius: 28px;\r\n    margin-left: 10px;\r\n}\r\n\r\n/* Edit icon */\r\n.add-icon, .edit-icon, .reset-strikeout-icon, .print-icon, .persons-minus, .persons-plus {\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #666;\r\n    transition: all 0.2s ease;\r\n    padding: 3px;\r\n}\r\n\r\n.add-icon:hover, .edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover, .persons-minus:hover, .persons-plus:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n    border-radius: 100%;\r\n}\r\n\r\n.header-icons {\r\n    display: flex;\r\n    gap: 8px;\r\n}\r\n\r\n.add-icon, .edit-icon {\r\n    cursor: pointer;\r\n    opacity: 0.7;\r\n    transition: opacity 0.2s;\r\n}\r\n\r\n.add-icon:hover, .edit-icon:hover {\r\n    opacity: 1;\r\n}\r\n\r\n.reset-strikeout-icon {\r\n    position: absolute;\r\n    right: 0;\r\n    top: 0;\r\n}\r\n\r\n.print-icon {\r\n    position: absolute;\r\n    right: 30px;\r\n    top: 0;\r\n}\r\n\r\n/* YAML edit textarea */\r\n.yaml-editor {\r\n    width: calc(100% - 15px);\r\n    height: 400px;\r\n    font-family: monospace;\r\n    font-size: 14px;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 5px;\r\n    resize: vertical;\r\n}\r\n\r\n/* Button container */\r\n.button-container {\r\n    display: flex;\r\n    justify-content: flex-end;\r\n    margin-top: 10px;\r\n}\r\n\r\n/* Save and cancel buttons */\r\n.save-button, .cancel-button {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 7px;\r\n    font-size: 16px;\r\n    border: none;\r\n    background: none;\r\n    cursor: pointer;\r\n    margin-left: 5px;\r\n    transition: opacity 0.2s ease;\r\n    color: #666;\r\n}\r\n\r\n.save-button:hover, .cancel-button:hover {\n    color: #333;\n    background-color: #ddd;\n    border-radius: 100%;\n}\n\n.menu-controls {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 10px;\n    align-items: center;\n    margin-bottom: 12px;\n    font-family: Calibri, sans-serif;\n}\n\n.menu-back {\n    border: none;\n    background: #f3f3f3;\n    border-radius: 10px;\n    padding: 6px 8px;\n    cursor: pointer;\n    color: #666;\n    transition: background 0.2s ease, color 0.2s ease;\n}\n\n.menu-back:hover {\n    background: #e0e0e0;\n    color: #333;\n}\n\n.menu-group-toggle {\n    border: 1px solid #ccc;\n    background: #fafafa;\n    padding: 6px 10px;\n    border-radius: 10px;\n    cursor: pointer;\n    transition: background 0.2s ease, border-color 0.2s ease;\n}\n\n.menu-group-toggle.active {\n    background: #e8f4ff;\n    border-color: #7fb9e5;\n}\n\n.menu-filter-toggle {\n    display: inline-flex;\n    align-items: center;\n    gap: 6px;\n    font-size: 14px;\n}\n\n.menu-results {\n    font-family: Calibri, sans-serif;\n}\n\n.menu-list {\n    list-style: none;\n    padding: 0;\n    margin: 0;\n}\n\n.menu-list li {\n    padding: 6px 10px;\n    border-radius: 8px;\n    cursor: pointer;\n    transition: background 0.2s ease;\n}\n\n.menu-list li:hover {\n    background: #f0f0f0;\n}\n\n.menu-category {\n    margin-bottom: 12px;\n}\n\n.menu-category-title {\n    font-weight: bold;\n    margin: 8px 0 4px;\n}\n\n.menu-empty {\n    color: #666;\n    font-style: italic;\n}\n";
+var css = "@media print {\r\n    @page {\r\n        size: A4 landscape;\r\n        margin: 0;\r\n    }\r\n\r\n    body {\r\n        margin: 0;\r\n        padding: 16mm;\r\n        width: calc(148mm / 0.9);\r\n        height: calc(210mm / 0.9);\r\n        box-sizing: border-box;\r\n        scale: 0.9;\r\n        transform-origin: top left;\r\n        page-break-inside: avoid;\r\n        break-inside: avoid;\r\n        overflow: hidden;\r\n        position: fixed;\r\n        top: 0;\r\n        left: 0;\r\n    }\r\n}\r\n\r\n.print-container .edit-icon,\r\n.print-container .reset-strikeout-icon,\r\n.print-container .print-icon,\r\n.print-container .search-container,\r\n.print-container .menu-controls,\r\n.print-container .menu-results,\r\n.print-container .persons-minus,\r\n.print-container .persons-plus,\r\n.print-container #recipe-results {\r\n    display: none !important;\r\n}\r\n\r\n.print-container .recipe-header {\r\n    font-size: 14pt;\r\n}\r\n\r\n.print-container .recipe-content {\r\n    font-size: 11pt;\r\n}\r\n\r\n.selectdiv {\r\n    margin: 10px;\r\n}\r\n\r\n.selectdiv > select {\r\n    width: 100%;\r\n    padding: 5px;\r\n    border-radius: 10px;\r\n}\r\n\r\n.content {\r\n    padding: 16px;\r\n}\r\n\r\n.recipe-header {\r\n    font-size: 1.5em;\r\n    font-weight: bold;\r\n    margin-bottom: 10px;\r\n    border-bottom: black 1px solid;\r\n    padding-bottom: 2px;\r\n    font-family: Cambria serif;\r\n    display: flex;\r\n    justify-content: space-between;\r\n    align-items: center;\r\n}\r\n\r\n.recipe-banner {\r\n    font-family: Calibri, sans-serif;\r\n    position: relative;\r\n    z-index: 2;\r\n}\r\n\r\n.recipe-banner .persons-control {\r\n    padding: 3px 8px;\r\n    display: inline-block;\r\n    background-color: #eee;\r\n    border-radius: 8px;\r\n}\r\n\r\n.recipe-banner .persons-control .persons-count {\r\n    font-weight: bold;\r\n    padding: 0 5px;\r\n    cursor: pointer;\r\n}\r\n\r\n.recipe-banner .persons-control .persons-count:hover {\r\n    background-color: #ddd;\r\n}\r\n\r\n.persons-plus, .persons-minus {\r\n    display: inline-block;\r\n    width: 14px;\r\n    height: 14px;\r\n    --mdc-icon-size: 100%;\r\n}\r\n\r\n.recipe-content {\r\n    margin-left: 20px;\r\n    position: relative;\r\n    font-family: Calibri, sans-serif;\r\n}\r\n\r\n.ingredient-list, .instruction-list {\r\n    padding-inline-start: 20px;\r\n    margin: 0;\r\n}\r\n\r\n.ingredient-list li, .instruction-list li {\r\n    cursor: pointer;\r\n    transition: color 0.2s ease, text-decoration 0.2s ease;\r\n}\r\n\r\n.ingredient-list li.checked, .instruction-list li.checked {\r\n    text-decoration: line-through;\r\n    color: #888;\r\n}\r\n\r\n/* Container for the search input and results */\r\n.selectdiv {\r\n    position: relative;\r\n    margin: 10px;\r\n}\r\n\r\n/* Search input field */\r\n.search-container {\r\n    position: relative;\r\n    display: flex;\r\n    align-items: center;\r\n    width: 100%;\r\n    gap: 8px;\r\n}\r\n\r\n#recipe-search {\r\n    flex-grow: 1;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    font-size: 16px;\r\n}\r\n\r\n#clear-search {\r\n    position: absolute;\r\n    right: 10px;\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #888;\r\n    display: none;\r\n}\r\n\r\n#clear-search:hover {\r\n    color: #555;\r\n}\r\n\r\n#recipe-search:not(:placeholder-shown) + #clear-search {\r\n    display: block;\r\n}\r\n\r\n.menu-toggle {\r\n    border: none;\r\n    background: #f3f3f3;\r\n    border-radius: 10px;\r\n    padding: 6px 8px;\r\n    cursor: pointer;\r\n    color: #666;\r\n    transition: background 0.2s ease, color 0.2s ease;\r\n}\r\n\r\n.menu-toggle:hover {\r\n    background: #e0e0e0;\r\n    color: #333;\r\n}\r\n\r\n\r\n/* Search results dropdown */\r\n#recipe-results {\r\n    display: none; /* JS controls visibility */\r\n    position: absolute;\r\n    width: calc(100% - 5px);\r\n    background: white;\r\n    border: 1px solid #ccc;\r\n    border-radius: 10px;\r\n    max-height: 200px;\r\n    overflow-y: auto;\r\n    padding: 5px 0;\r\n    list-style: none;\r\n    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);\r\n    margin: 0;\r\n    z-index: 3;\r\n}\r\n\r\n/* Individual list items */\r\n#recipe-results li {\r\n    padding: 2px 10px;\r\n    cursor: pointer;\r\n    font-size: 16px;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n.scaled_quantity{\r\n    color: #2196f3;\r\n    font-style: italic;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Hover effect */\r\n#recipe-results li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n/* Selected item (for keyboard navigation) */\r\n#recipe-results li.selected {\r\n    background: #dcdcdc;\r\n    font-weight: bold;\r\n}\r\n\r\n/* Category bubble */\r\n.category-bubble {\r\n    display: inline-block;\r\n    background-color: #f4a261;\r\n    color: white;\r\n    font-size: 12px;\r\n    padding: 4px 8px;\r\n    border-radius: 28px;\r\n    margin-left: 10px;\r\n}\r\n\r\n/* Edit icon */\r\n.add-icon, .edit-icon, .reset-strikeout-icon, .print-icon, .persons-minus, .persons-plus {\r\n    cursor: pointer;\r\n    font-size: 20px;\r\n    color: #666;\r\n    transition: all 0.2s ease;\r\n    padding: 3px;\r\n}\r\n\r\n.add-icon:hover, .edit-icon:hover, .reset-strikeout-icon:hover, .print-icon:hover, .persons-minus:hover, .persons-plus:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n    border-radius: 100%;\r\n}\r\n\r\n.header-icons {\r\n    display: flex;\r\n    gap: 8px;\r\n}\r\n\r\n.add-icon, .edit-icon {\r\n    cursor: pointer;\r\n    opacity: 0.7;\r\n    transition: opacity 0.2s;\r\n}\r\n\r\n.add-icon:hover, .edit-icon:hover {\r\n    opacity: 1;\r\n}\r\n\r\n.reset-strikeout-icon {\r\n    position: absolute;\r\n    right: 0;\r\n    top: 0;\r\n}\r\n\r\n.print-icon {\r\n    position: absolute;\r\n    right: 30px;\r\n    top: 0;\r\n}\r\n\r\n/* YAML edit textarea */\r\n.yaml-editor {\r\n    width: calc(100% - 15px);\r\n    height: 400px;\r\n    font-family: monospace;\r\n    font-size: 14px;\r\n    padding: 8px;\r\n    border: 1px solid #ccc;\r\n    border-radius: 5px;\r\n    resize: vertical;\r\n}\r\n\r\n/* Button container */\r\n.button-container {\r\n    display: flex;\r\n    justify-content: flex-end;\r\n    margin-top: 10px;\r\n}\r\n\r\n/* Save and cancel buttons */\r\n.save-button, .cancel-button {\r\n    display: flex;\r\n    align-items: center;\r\n    padding: 7px;\r\n    font-size: 16px;\r\n    border: none;\r\n    background: none;\r\n    cursor: pointer;\r\n    margin-left: 5px;\r\n    transition: opacity 0.2s ease;\r\n    color: #666;\r\n}\r\n\r\n.save-button:hover, .cancel-button:hover {\r\n    color: #333;\r\n    background-color: #ddd;\r\n    border-radius: 100%;\r\n}\r\n\r\n.menu-controls {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 10px;\n    align-items: center;\n    margin-bottom: 12px;\n    font-family: inherit;\n}\n\n.menu-group-toggle,\n.menu-filter-toggle {\n    border: 1px solid #ccc;\n    background: #fafafa;\n    padding: 6px 10px;\n    border-radius: 10px;\n    cursor: pointer;\n    transition: background 0.2s ease, border-color 0.2s ease;\n}\n\n.menu-group-toggle.active,\n.menu-filter-toggle.active {\n    background: #e8f4ff;\n    border-color: #7fb9e5;\n}\n\n.menu-results {\n    font-family: inherit;\n}\n\r\n.menu-list {\r\n    list-style: none;\r\n    padding: 0;\r\n    margin: 0;\r\n}\r\n\r\n.menu-list li {\r\n    padding: 6px 10px;\r\n    border-radius: 8px;\r\n    cursor: pointer;\r\n    transition: background 0.2s ease;\r\n}\r\n\r\n.menu-list li:hover {\r\n    background: #f0f0f0;\r\n}\r\n\r\n.menu-category {\r\n    margin-bottom: 12px;\r\n}\r\n\r\n.menu-category-title {\r\n    font-weight: bold;\r\n    margin: 8px 0 4px;\r\n}\r\n\r\n.menu-empty {\r\n    color: #666;\r\n    font-style: italic;\r\n}\r\n";
 
 /**
  * Fuse.js v7.1.0 - Lightweight fuzzy-search (http://fusejs.io)
@@ -5811,7 +5811,7 @@ class RecipeCard extends HTMLElement {
         const clearIcon = this._elements.selectdiv.querySelector("#clear-search");
 
         this._elements.menuToggle.addEventListener("click", () => {
-            this._viewMode = "menu";
+            this._viewMode = this._viewMode === "menu" ? "singleRecipe" : "menu";
             this.fillContent();
         });
         searchInput.addEventListener("input", onSearchInput.bind(this));
@@ -5869,6 +5869,7 @@ class RecipeCard extends HTMLElement {
     }
 
     fillContent() {
+        this.updateMenuToggleIcon();
         if (this._viewMode === "menu") {
             this.fillContentMenu();
             return;
@@ -5882,6 +5883,16 @@ class RecipeCard extends HTMLElement {
             return;
         }
         this.fillContentSingleRecipe();
+    }
+
+    updateMenuToggleIcon() {
+        const icon = this._viewMode === "menu" ? "mdi:arrow-left" : "mdi:menu";
+        const label = this._viewMode === "menu" ? "Back to recipe" : "Open menu";
+        const iconEl = this._elements.menuToggle?.querySelector("ha-icon");
+        if (iconEl) {
+            iconEl.setAttribute("icon", icon);
+        }
+        this._elements.menuToggle?.setAttribute("aria-label", label);
     }
 
     fillContentMenu() {
@@ -5913,7 +5924,12 @@ class RecipeCard extends HTMLElement {
                 <ul class="menu-list">
                     ${recipesWithIndex
                         .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
-                        .map(({recipe, index}) => `<li data-index="${index}">${recipe.name}</li>`)
+                        .map(({recipe, index}) => `
+                            <li data-index="${index}">
+                                ${recipe.name}
+                                <span class="category-bubble">${recipe.category || "Uncategorized"}</span>
+                            </li>
+                        `)
                         .join("")}
                 </ul>
             `;
@@ -5921,38 +5937,28 @@ class RecipeCard extends HTMLElement {
 
         this._elements.content.innerHTML = `
             <div class="menu-controls">
-                <button class="menu-back" aria-label="Back to recipe">
-                    <ha-icon icon="mdi:arrow-left"></ha-icon>
-                </button>
                 <button class="menu-group-toggle ${this._menuGroupByCategory ? "active" : ""}">
                     Group by category
                 </button>
-                <label class="menu-filter-toggle">
-                    <input type="checkbox" id="menu-hide-printed" ${this._menuHidePrinted ? "checked" : ""}>
+                <button class="menu-filter-toggle ${this._menuHidePrinted ? "active" : ""}" aria-pressed="${this._menuHidePrinted}">
                     Only show unprinted
-                </label>
+                </button>
             </div>
             <div class="menu-results">
                 ${listHtml || "<div class='menu-empty'>No recipes found.</div>"}
             </div>
         `;
 
-        const backButton = this._elements.content.querySelector(".menu-back");
         const groupToggle = this._elements.content.querySelector(".menu-group-toggle");
-        const hidePrintedToggle = this._elements.content.querySelector("#menu-hide-printed");
-
-        backButton.addEventListener("click", () => {
-            this._viewMode = "singleRecipe";
-            this.fillContent();
-        });
+        const hidePrintedToggle = this._elements.content.querySelector(".menu-filter-toggle");
 
         groupToggle.addEventListener("click", () => {
             this._menuGroupByCategory = !this._menuGroupByCategory;
             this.fillContentMenu();
         });
 
-        hidePrintedToggle.addEventListener("change", () => {
-            this._menuHidePrinted = hidePrintedToggle.checked;
+        hidePrintedToggle.addEventListener("click", () => {
+            this._menuHidePrinted = !this._menuHidePrinted;
             this.fillContentMenu();
         });
 
