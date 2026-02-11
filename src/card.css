@@ -34,6 +34,10 @@
     display: none !important;
 }
 
+.print-container{
+    line-height: 1.3;
+}
+
 .print-container .persons-control{
     position: absolute;
     right: 0;
