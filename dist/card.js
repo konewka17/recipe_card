@@ -6053,7 +6053,7 @@ class RecipeCard extends HTMLElement {
     }
 
     async togglePrinted() {
-        let printed = !this.recipe?.printed || true;
+        let printed = !this.recipe?.printed;
         await this.setPrinted(printed);
     }
 
