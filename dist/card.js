@@ -6013,7 +6013,7 @@ class RecipeCard extends HTMLElement {
         content.querySelector(".add-icon").addEventListener("click", this.createNewRecipe.bind(this));
         content.querySelector(".reset-strikeout-icon").addEventListener("click", onResetClick.bind(this));
         content.querySelector(".print-icon").addEventListener("click", this.printRecipe.bind(this));
-        content.querySelector(".print-status-pill").addEventListener("click", this.markAsPrinted.bind(this));
+        content.querySelector(".print-status-pill").addEventListener("click", this.setPrinted.bind(this));
         content.querySelector(".persons-minus")?.addEventListener("click", onClickPersonsChange.bind(this, -1));
         content.querySelector(".persons-plus")?.addEventListener("click", onClickPersonsChange.bind(this, 1));
         content.querySelector(".persons-count").addEventListener("click", onClickPersonsCount.bind(this));
@@ -6053,6 +6053,9 @@ class RecipeCard extends HTMLElement {
     }
 
     async setPrinted(printed) {
+        if (printed === undefined) {
+            printed = !this.recipe.printed || true;
+        }
         try {
             await this._hass.callService("recipes", "update_recipe", {
                 recipe_name: this.recipe.name,
