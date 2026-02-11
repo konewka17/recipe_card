@@ -376,6 +376,10 @@
     cursor: pointer;
     user-select: none;
     transition: 0.2s ease;
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    right: 60px;
 }
 
 .print-status-pill.printed {
