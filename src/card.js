@@ -410,7 +410,8 @@ class RecipeCard extends HTMLElement {
         try {
             await this._hass.callService("recipes", "update_recipe", {
                 recipe_name: this.recipe.name,
-                new_yaml: newYaml
+                new_yaml: newYaml,
+                printed: false
             });
             this.fetchRecipes().then(() => this.toggleEditMode());
         } catch (error) {
