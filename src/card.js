@@ -21,7 +21,7 @@ class RecipeCard extends HTMLElement {
     _selectedSearchIndex = -1;
     _recipeStorage = {};
     _viewMode = "singleRecipe";
-    _menuGroupByCategory = false;
+    _menuGroupByCategory = true;
     _menuHidePrinted = false;
 
     setConfig(config) {
@@ -285,6 +285,9 @@ class RecipeCard extends HTMLElement {
             </div>
             <div class="recipe-banner">
                 <div class="reset-strikeout-icon"><ha-icon icon="mdi:restart"></ha-icon></div>
+                <div class="print-status-pill ${this.recipe?.printed === true ? "printed" : "to-print"}">
+                    ${this.recipe?.printed === true ? "Printed" : "To be printed"}
+                </div>
                 <div class="print-icon"><ha-icon icon="mdi:printer"></ha-icon></div>
                 ${this.recipe?.persons ? `
                     <div class="persons-control">
@@ -313,6 +316,7 @@ class RecipeCard extends HTMLElement {
         content.querySelector(".add-icon").addEventListener("click", this.createNewRecipe.bind(this));
         content.querySelector(".reset-strikeout-icon").addEventListener("click", onResetClick.bind(this));
         content.querySelector(".print-icon").addEventListener("click", this.printRecipe.bind(this));
+        content.querySelector(".print-status-pill").addEventListener("click", this.markAsPrinted.bind(this));
         content.querySelector(".persons-minus")?.addEventListener("click", onClickPersonsChange.bind(this, -1));
         content.querySelector(".persons-plus")?.addEventListener("click", onClickPersonsChange.bind(this, 1));
         content.querySelector(".persons-count").addEventListener("click", onClickPersonsCount.bind(this));
@@ -333,6 +337,7 @@ class RecipeCard extends HTMLElement {
     }
 
     printRecipe() {
+        this.markAsPrinted()
         const printContent = this._elements.content.innerHTML;
         const printWindow = window.open("", "", "width=800,height=600");
         printWindow.document.write(`
@@ -348,6 +353,22 @@ class RecipeCard extends HTMLElement {
             </html>
         `);
         printWindow.document.close();
+    }
+
+    async markAsPrinted() {
+        if (this.recipe?.printed === true) return;
+
+        try {
+            await this._hass.callService("recipes", "update_recipe", {
+                recipe_name: this.recipe.name,
+                printed: true
+            });
+
+            this.recipe.printed = true;
+            this.fillContent();
+        } catch (error) {
+            alert("Failed to update printed status: " + error.message);
+        }
     }
 
     toggleEditMode() {

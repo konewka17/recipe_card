@@ -367,3 +367,27 @@
     color: #666;
     font-style: italic;
 }
+
+.print-status-pill {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.2s ease;
+}
+
+.print-status-pill.printed {
+    background-color: rgba(46, 125, 50, 0.08);
+    color: #2e7d32;
+}
+
+.print-status-pill.to-print {
+    background-color: rgba(198, 40, 40, 0.08);
+    color: #c62828;
+}
+
+.print-status-pill:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
