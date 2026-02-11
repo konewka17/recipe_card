@@ -200,7 +200,7 @@ class RecipeCard extends HTMLElement {
 
     fillContentMenu() {
         const recipesWithIndex = (this._parsedRecipes || []).map((recipe, index) => ({recipe, index}))
-            .filter(({recipe}) => !this._menuHidePrinted || recipe.printed !== true);
+                                                            .filter(({recipe}) => !this._menuHidePrinted || recipe.printed !== true);
 
         let listHtml = "";
         if (this._menuGroupByCategory) {
@@ -216,9 +216,9 @@ class RecipeCard extends HTMLElement {
                     <div class="menu-category-title">${category}</div>
                     <ul class="menu-list">
                         ${grouped[category]
-                            .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
-                            .map(({recipe, index}) => `<li data-index="${index}">${recipe.name}</li>`)
-                            .join("")}
+                .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
+                .map(({recipe, index}) => `<li data-index="${index}">${recipe.name}</li>`)
+                .join("")}
                     </ul>
                 </div>
             `).join("");
@@ -226,14 +226,14 @@ class RecipeCard extends HTMLElement {
             listHtml = `
                 <ul class="menu-list">
                     ${recipesWithIndex
-                        .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
-                        .map(({recipe, index}) => `
+                .sort((a, b) => a.recipe.name.localeCompare(b.recipe.name))
+                .map(({recipe, index}) => `
                             <li data-index="${index}">
                                 ${recipe.name}
                                 <span class="category-bubble">${recipe.category || "Uncategorized"}</span>
                             </li>
                         `)
-                        .join("")}
+                .join("")}
                 </ul>
             `;
         }
@@ -337,7 +337,7 @@ class RecipeCard extends HTMLElement {
     }
 
     printRecipe() {
-        this.setPrinted(true)
+        this.setPrinted(true);
         const printContent = this._elements.content.innerHTML;
         const printWindow = window.open("", "", "width=800,height=600");
         printWindow.document.write(`
@@ -357,7 +357,8 @@ class RecipeCard extends HTMLElement {
 
     async setPrinted(printed) {
         if (printed === undefined) {
-            printed = !this.recipe.printed || true
+            printed = !this.recipe?.printed || true;
+            console.log(printed, this.recipe?.printed)
         }
         try {
             await this._hass.callService("recipes", "update_recipe", {
